@@ -16,5 +16,14 @@
     "music": "Se_Paciente_Funk(0).mp3",
     "engine": "studio",
     "scheduled": true
+  },
+  {
+    "date": "20261102-021704",
+    "topic": "v2:most-nba-mvps",
+    "title": "Most NBA MVP Awards Ever 🏀👑",
+    "video_id": null,
+    "music": "𝙉𝘼𝙆𝘼𝙈𝘼___𝙈𝘾_𝙎𝙏𝘼𝙁𝙁_-_𝙈𝙀𝙉𝙏𝙀_𝙈𝘼__𝙐𝙇𝙏𝙍𝘼_𝙎𝙇𝙊𝙒𝙀𝘿___𝙍𝙀𝙑𝙀𝙍𝘽_(0).mp3",
+    "engine": "studio",
+    "scheduled": false
   }
 ]

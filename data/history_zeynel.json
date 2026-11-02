@@ -25,5 +25,14 @@
     "music": "𝙉𝘼𝙆𝘼𝙈𝘼___𝙈𝘾_𝙎𝙏𝘼𝙁𝙁_-_𝙈𝙀𝙉𝙏𝙀_𝙈𝘼__𝙐𝙇𝙏𝙍𝘼_𝙎𝙇𝙊𝙒𝙀𝘿___𝙍𝙀𝙑𝙀𝙍𝘽_(0).mp3",
     "engine": "studio",
     "scheduled": false
+  },
+  {
+    "date": "20261102-093100",
+    "topic": "v2:galatasaray-vs-fenerbahce",
+    "title": "Galatasaray vs Fenerbahçe Süper Lig Titles 🦁🐤",
+    "video_id": null,
+    "music": "BRODYAGA_FUNK(0).mp3",
+    "engine": "studio",
+    "scheduled": true
   }
 ]

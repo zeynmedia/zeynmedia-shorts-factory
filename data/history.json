@@ -182,5 +182,14 @@
     "music": "FUNK_ABNORMAL__ULTRA_SLOWED_(0).mp3",
     "engine": "v2",
     "scheduled": false
+  },
+  {
+    "date": "20261102-192711",
+    "topic": "v2:big3-grand-slams",
+    "title": "Djokovic vs Nadal vs Federer Grand Slams 🎾🏆",
+    "video_id": "PbgLBWgkx9M",
+    "music": "ELA_DANCA__Slowed__-_Sayfalse,_5opka,_MellSher_[AMV](0).mp3",
+    "engine": "v2",
+    "scheduled": true
   }
 ]

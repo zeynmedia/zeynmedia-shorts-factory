@@ -13,7 +13,11 @@ import subprocess
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+SCOPES = [
+    "https://www.googleapis.com/auth/youtube.upload",
+    "https://www.googleapis.com/auth/youtube.force-ssl",  # channel's own comment under each Short
+    "https://www.googleapis.com/auth/yt-analytics.readonly",  # topic scores from real retention
+]
 
 ap = argparse.ArgumentParser()
 ap.add_argument("client_secret")

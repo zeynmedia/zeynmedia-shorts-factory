@@ -23,12 +23,14 @@ sys.path.insert(0, str(V2 / "scripts"))
 sys.path.insert(0, str(ROOT / "factory"))
 
 from fetch_assets import build_props, load_index, save_index  # noqa: E402
+from performance import load_scores  # noqa: E402
 
 TOPICS = V2 / "topics"
 HISTORY = ROOT / (os.environ.get("HISTORY_FILE") or "data/history.json")  # each production line keeps its own
 OUT = ROOT / "output"
 PUBLIC_MUSIC = V2 / "public" / "music"
 MUSIC_REPEAT_GAP = 12
+RECENT_GAP = 6  # topics from the last 6 uploads sit out
 MAX_STEPS = 10  # more steps than this in 18 s and the gains flash by too fast to read
 STUDIO_STYLE = ROOT / "config" / "style_zeynel.json"
 BASS_SFX = {
@@ -52,14 +54,29 @@ def pick_topic(history, forced):
         if forced not in topics:
             sys.exit(f"konu yok: {forced} (var olanlar: {', '.join(topics)})")
         return forced
-    # Least recently used first; never-used topics win, ties broken randomly
-    last_used = {t: -1 for t in topics}
-    for i, h in enumerate(history):
-        slug = (h.get("topic") or "").removeprefix("v2:")
-        if slug in last_used and h.get("video_id"):
-            last_used[slug] = i
-    oldest = min(last_used.values())
-    return random.choice([t for t, i in last_used.items() if i == oldest])
+    # Skip the last few topics, then pick weighted by past performance; topics without data get the median
+    # so new ones still get tried. Shorts live ~3-4 days, so a strong topic can come back after a week.
+    used = [(h.get("topic") or "").removeprefix("v2:") for h in history if h.get("video_id")]
+    recent = set(used[-RECENT_GAP:])
+    pool = [t for t in topics if t not in recent] or topics
+    scores = load_scores(history)
+    known = sorted(scores[t] for t in topics if t in scores) or [1]
+    median = known[len(known) // 2]
+    weights = [max(1, scores.get(t, median)) for t in pool]
+    pick = random.choices(pool, weights=weights)[0]
+    print(f"[v2] konu puanları: " + ", ".join(f"{t}={w}" for t, w in sorted(zip(pool, weights), key=lambda x: -x[1])[:6]))
+    return pick
+
+
+def debate_comment(spec):
+    """Channel's first comment: a question people can answer in one word, plus the next-video hook."""
+    names = [e["name"] for e in spec["entities"]]
+    if len(names) <= 3:
+        ask = " or ".join([", ".join(names[:-1]), names[-1]]) if len(names) > 2 else " or ".join(names)
+        question = f"{ask}? Who's the real GOAT? 🐐👇"
+    else:
+        question = "Who should be #1 on this list? Drop your pick 👇"
+    return f"{question}\nWhich rivalry should we race next? 🏁"
 
 
 def pick_music(history, music_dir):
@@ -188,9 +205,10 @@ def main():
     yt = spec["youtube"]
     video_id = None
     if not args.skip_upload:
-        from upload import upload_video
+        from upload import post_comment, upload_video
 
         video_id = upload_video(video, yt, privacy=os.environ.get("YT_PRIVACY", "public"))
+        post_comment(video_id, debate_comment(spec))
 
     meta = {
         "topic": f"v2:{slug}",

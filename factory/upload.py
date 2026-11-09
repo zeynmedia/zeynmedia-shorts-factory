@@ -4,19 +4,20 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
-
-def _youtube():
-    creds = Credentials(
+def credentials():
+    # No scopes on refresh: the token keeps whatever was granted (upload, plus comments/analytics on newer tokens)
+    return Credentials(
         token=None,
         refresh_token=os.environ["YT_REFRESH_TOKEN"],
         client_id=os.environ["YT_CLIENT_ID"],
         client_secret=os.environ["YT_CLIENT_SECRET"],
         token_uri="https://oauth2.googleapis.com/token",
-        scopes=SCOPES,
     )
-    return build("youtube", "v3", credentials=creds, cache_discovery=False)
+
+
+def _youtube():
+    return build("youtube", "v3", credentials=credentials(), cache_discovery=False)
 
 
 def upload_video(path, yt_meta, privacy="public", category_id="17"):
@@ -44,3 +45,15 @@ def upload_video(path, yt_meta, privacy="public", category_id="17"):
     video_id = response["id"]
     print(f"[upload] yüklendi: https://youtube.com/shorts/{video_id}")
     return video_id
+
+
+def post_comment(video_id, text):
+    """Channel's own first comment (needs the youtube.force-ssl scope; skipped on older tokens)."""
+    try:
+        _youtube().commentThreads().insert(
+            part="snippet",
+            body={"snippet": {"videoId": video_id, "topLevelComment": {"snippet": {"textOriginal": text}}}},
+        ).execute()
+        print(f"[comment] yazıldı: {text}")
+    except Exception as e:
+        print(f"[comment] yazılamadı ({type(e).__name__}): token yorum iznine sahip değil olabilir")

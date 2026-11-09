@@ -1,4 +1,4 @@
-"""Hourly cron gate: picks 2-3 random upload hours per day (seeded by date) and
+"""Hourly cron gate: picks 3-4 random upload hours per day (seeded by date) and
 says whether a video is due now. Catches up if a scheduled run was skipped."""
 import json
 import os
@@ -14,7 +14,7 @@ FIRST_HOUR, LAST_HOUR, MIN_GAP = 9, 22, 3
 def todays_hours(day):
     line = os.environ.get("HISTORY_FILE") or ""  # a second production line gets its own hours
     rng = random.Random(f"{day.isoformat()}-{os.environ.get('GITHUB_REPOSITORY', '')}{line}")
-    n = rng.choice([2, 3])
+    n = rng.choice([3, 4])  # 2026-11 analytics: views track upload count, a Short fades after ~3 days
     while True:
         hours = sorted(rng.sample(range(FIRST_HOUR, LAST_HOUR + 1), n))
         if all(b - a >= MIN_GAP for a, b in zip(hours, hours[1:])):

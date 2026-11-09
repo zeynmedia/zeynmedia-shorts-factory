@@ -84,12 +84,28 @@ def localize(spec, lang):
     return spec
 
 
+def question_particle(word):
+    """Turkish mı/mi/mu/mü by vowel harmony with the word's last vowel (Messi mi, Galatasaray mı, Ronaldo mu)."""
+    for ch in reversed(word.lower()):
+        if ch in "aı":
+            return "mı"
+        if ch in "ei":
+            return "mi"
+        if ch in "ou":
+            return "mu"
+        if ch in "öü":
+            return "mü"
+    return "mi"
+
+
 def debate_comment(spec, lang="en"):
     """Channel's first comment: a question people can answer in one word, plus the next-video hook."""
     names = [e["name"] for e in spec["entities"]]
     if lang == "tr":
         if len(names) <= 3:
-            return f"{' mi '.join(names)} mi? Sence gerçek GOAT kim? 🐐👇\nSıradaki kapışma ne olsun? 🏁"
+            ask = " ".join(f"{n} {question_particle(n)}" for n in names)
+            people = all(e.get("player") for e in spec["entities"])
+            return f"{ask}? {'Sence gerçek GOAT kim? 🐐👇' if people else 'Sence hangisi daha büyük? 👇'}\nSıradaki kapışma ne olsun? 🏁"
         return "Sence 1 numara kim olmalı? Yorumlara yaz 👇\nSıradaki kapışma ne olsun? 🏁"
     if len(names) <= 3:
         ask = " or ".join([", ".join(names[:-1]), names[-1]]) if len(names) > 2 else " or ".join(names)

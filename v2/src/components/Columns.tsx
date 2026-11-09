@@ -3,9 +3,10 @@ import {CHART_BOTTOM, CHART_TOP, type Layout} from '../engine/layout';
 import {fonts} from '../fonts';
 import type {ShortProps} from '../schema';
 import type {Theme} from '../theme/themes';
+import type {Hits} from '../engine/timeline';
 import {BallIcon, TrophyIcon} from './Icons';
 
-
+const POP_STEPS = 0.07; // bubble pop length in step progress
 
 const StepPill: React.FC<{label: string; icon: ShortProps['stepIcon']; dark: boolean}> = ({label, icon, dark}) => (
 	<div
@@ -79,7 +80,8 @@ export const Columns: React.FC<{
 	s: number;
 	rowY: Record<string, number>;
 	t: number;
-}> = ({p, theme, layout, s, rowY, t}) => {
+	hits: Hits;
+}> = ({p, theme, layout, s, rowY, t, hits}) => {
 	const grid = theme.delta === 'grid';
 	const pillTop = CHART_TOP - 98;
 	return (
@@ -118,18 +120,22 @@ export const Columns: React.FC<{
 									if (e.others && !grid) return null;
 									const v = step.values[e.id] ?? 0;
 									if (!grid && v <= 0) return null;
+									// A gain bubble bursts on the face it lands on: quick swell + fade, then it's in the total
+									const popK = v > 0 && !e.others ? (s - hits[e.id][k]) / POP_STEPS : -1;
+									if (popK >= 1) return null;
+									const pop = popK > 0 ? {transform: `scale(${1 + popK * 0.6})`, opacity: 1 - popK} : undefined;
 									const size = grid ? layout.deltaSize * 0.9 : layout.deltaSize;
 									const y = rowY[e.id];
 									if (grid) {
 										return (
-											<div key={e.id} style={{position: 'absolute', left: x - size / 2, top: y - size / 2}}>
+											<div key={e.id} style={{position: 'absolute', left: x - size / 2, top: y - size / 2, ...pop}}>
 												<GridMark won={v} size={size} />
 											</div>
 										);
 									}
 									const pulse = 0.5 + 0.5 * Math.sin(t * 8 + k);
 									return (
-										<div key={e.id} style={{position: 'absolute', left: x - size / 2, top: y - size / 2}}>
+										<div key={e.id} style={{position: 'absolute', left: x - size / 2, top: y - size / 2, ...pop}}>
 											<Delta kind={theme.delta} value={v} size={size} pulse={pulse} />
 										</div>
 									);

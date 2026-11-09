@@ -57,7 +57,8 @@ def fetch_analytics():
         ).execute()
         return {row[0]: (row[1], row[2]) for row in res.get("rows", [])}
     except Exception as e:  # missing scope, quota, API hiccup: keep the stored scores
-        print(f"[perf] analytics okunamadı ({type(e).__name__}), kayıtlı puanlar kullanılıyor")
+        detail = getattr(e, "reason", "") or str(e)[:200]
+        print(f"[perf] analytics okunamadı ({type(e).__name__}: {detail}), kayıtlı puanlar kullanılıyor")
         return None
 
 

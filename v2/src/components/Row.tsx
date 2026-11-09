@@ -37,9 +37,10 @@ export const Row: React.FC<{
 	layout: Layout;
 	y: number;
 	boxW: number;
+	appear: number; // 0 before the first gain: no empty box, just flag, name and face waiting at the axis
 	label: string;
 	fx: RowFx;
-}> = ({entity, index, theme, layout, y, boxW, label, fx}) => {
+}> = ({entity, index, theme, layout, y, boxW, appear, label, fx}) => {
 	const {axisX, boxH, tagW, portrait: P} = layout;
 	const alt = index % 2 === 1;
 	const boxBg =
@@ -110,6 +111,7 @@ export const Row: React.FC<{
 					background: boxBg,
 					transform: `scale(${1 + fx.punch})`,
 					transformOrigin: 'left center',
+					opacity: appear,
 					boxShadow: gold
 						? `0 0 ${40 * gold}px ${10 * gold}px rgba(255,205,60,${0.8 * gold}), inset 0 0 0 ${6 * gold}px rgba(255,214,90,${gold})`
 						: '0 10px 24px rgba(0,0,0,0.35)',

@@ -24,6 +24,7 @@ export const shortSchema = z.object({
 	subtitle: z.string(),
 	stepIcon: z.enum(['ball', 'trophy', 'none']).default('ball'),
 	stepSuffix: z.string().default(''),
+	hook: z.string().default(''), // first-second question over the chart; empty = WHO WINS? / WHO'S #1?
 	valueFormat: z.enum(['int', 'compact']).default('int'),
 	brand: z.string().default('ZEYN MEDYA'),
 	showDeltas: z.boolean().default(true),

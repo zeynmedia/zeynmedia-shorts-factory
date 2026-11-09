@@ -5,18 +5,20 @@ import {Background} from './components/Background';
 import {Columns} from './components/Columns';
 import {Confetti, Crown, Flash, Sparks, type Burst} from './components/Effects';
 import {Header} from './components/Header';
+import {Hook} from './components/Hook';
 import {Row} from './components/Row';
 import {Sound} from './components/Sound';
-import {layoutFor, xOfValue} from './engine/layout';
+import {barFor, firstGains, planHits} from './engine/hits';
+import {layoutFor} from './engine/layout';
 import {domainFor, formatValue} from './engine/scale';
 import {
-	absorbTime,
 	buildEvents,
 	easeOutCubic,
 	getTiming,
 	leaderAtEnd,
 	progressAt,
 	smoothRanksAt,
+	timeOfS,
 	valuesAt,
 } from './engine/timeline';
 import {fonts} from './fonts';
@@ -32,31 +34,36 @@ export const Short: React.FC<ShortProps> = (p) => {
 	const theme = themes[p.template];
 	const layout = layoutFor(p.template, p.entities.length);
 	const tm = getTiming(p);
-	const events = useMemo(() => buildEvents(p, fps), [p, fps]);
+	const hits = useMemo(() => planHits(p, layoutFor(p.template, p.entities.length), themes[p.template]), [p]);
+	const first = useMemo(() => firstGains(p), [p]);
+	const events = useMemo(() => buildEvents(p, fps, hits), [p, fps, hits]);
 	const leader = useMemo(() => leaderAtEnd(p), [p]);
 
 	const s = progressAt(t, tm);
-	const values = valuesAt(p, s);
-	const slots = smoothRanksAt(p, t, tm);
+	const values = valuesAt(p, s, hits);
+	const slots = smoothRanksAt(p, t, tm, hits);
 	const realValues = p.entities.filter((e) => !e.others).map((e) => values[e.id]);
 	const domain = domainFor(realValues, theme.zoomScale);
 
 	const rowY: Record<string, number> = {};
 	const boxW: Record<string, number> = {};
 	const boxRight: Record<string, number> = {};
+	const appear: Record<string, number> = {};
 	for (const e of p.entities) {
 		rowY[e.id] = layout.firstRowY + slots[e.id] * layout.pitch;
-		boxW[e.id] = e.others ? layout.minBoxW * 1.35 : Math.max(layout.minBoxW, xOfValue(layout, domain, values[e.id]) - layout.axisX - 3);
-		boxRight[e.id] = layout.axisX + 3 + boxW[e.id];
+		const bar = barFor(layout, theme, domain, values[e.id], first[e.id], e.others);
+		boxW[e.id] = bar.boxW;
+		boxRight[e.id] = bar.boxRight;
+		appear[e.id] = bar.appear;
 	}
 
-	// Gain moments per entity: the column reaches the absorb line and the total starts counting up
+	// Gain moments per entity: the bubble touches the row's face and the total starts counting up
 	const gains = p.steps.flatMap((step, k) =>
 		p.entities
 			.filter((e) => (step.values[e.id] ?? 0) > 0 && !e.others)
-			.map((e) => ({id: e.id, t: absorbTime(k, tm)})),
+			.map((e) => ({id: e.id, t: timeOfS(hits[e.id][k], tm)})),
 	);
-	const bursts: Burst[] = gains.map((g, i) => ({t: g.t, x: boxRight[g.id] - 40, y: rowY[g.id], seed: `${g.id}-${i}`}));
+	const bursts: Burst[] = gains.map((g, i) => ({t: g.t, x: boxRight[g.id] + layout.portrait * 0.4, y: rowY[g.id], seed: `${g.id}-${i}`}));
 	const overtakes = events.filter((e) => e.kind === 'whoosh');
 
 	const outroStart = tm.animEnd + 0.15;
@@ -64,7 +71,8 @@ export const Short: React.FC<ShortProps> = (p) => {
 	const shakeAge = Math.min(...overtakes.map((o) => (t >= o.t ? t - o.t : 99)), outroStart <= t ? t - outroStart : 99);
 	const shake = shakeAge < 0.28 ? (1 - shakeAge / 0.28) * 9 : 0;
 	const camScale = 1 + (1 - easeOutCubic(t / 0.6)) * 0.06 + winnerK * 0.03;
-	const flash = Math.max(1 - t / 0.25, (t - (tm.duration - 0.22)) / 0.22, 0);
+	// No white flash on frame 0: the first frame is what the feed shows before anyone decides to watch
+	const flash = Math.max((t - (tm.duration - 0.22)) / 0.22, 0);
 
 	return (
 		<AbsoluteFill style={{background: '#000', overflow: 'hidden', fontFamily: fonts.title}}>
@@ -76,8 +84,8 @@ export const Short: React.FC<ShortProps> = (p) => {
 				<Background theme={theme} brand={p.brand} />
 				<Header title={p.title} subtitle={p.subtitle} theme={theme} />
 				<Axis layout={layout} domain={domain} theme={theme} format={p.valueFormat} opacity={easeOutCubic(t / 0.5)} />
-				{/* Columns slide under the rows and fade at the axis, like the original studio */}
-				<Columns p={p} theme={theme} layout={layout} s={s} rowY={rowY} t={t} />
+				{/* Columns slide under the rows; each bubble pops on its own row's face */}
+				<Columns p={p} theme={theme} layout={layout} s={s} rowY={rowY} t={t} hits={hits} />
 				{[...p.entities]
 					.map((e, i) => ({e, i}))
 					.sort((a, b) => slots[b.e.id] - slots[a.e.id])
@@ -98,12 +106,13 @@ export const Short: React.FC<ShortProps> = (p) => {
 								layout={layout}
 								y={rowY[e.id]}
 								boxW={boxW[e.id]}
+								appear={appear[e.id]}
 								label={e.others ? 'OTHERS' : formatValue(values[e.id], p.valueFormat)}
 								fx={{
 									flash: Math.max(gainK, overK * 0.6),
 									punch: gainK * 0.05 + overK * 0.07 + (isWinner ? winnerK * 0.04 : 0),
 									winner: isWinner ? winnerK * (0.75 + 0.25 * Math.sin(t * 10)) : 0,
-									enter: easeOutCubic((t - 0.08 * slots[e.id]) / 0.45),
+									enter: easeOutCubic(0.6 + (t - 0.03 * slots[e.id]) / 0.3),
 								}}
 							/>
 						);
@@ -114,6 +123,7 @@ export const Short: React.FC<ShortProps> = (p) => {
 					y={rowY[leader] - layout.portrait * (theme.portrait === 'logo' ? 0.55 : 0.85)}
 					k={winnerK}
 				/>
+				<Hook text={p.hook || (p.entities.filter((e) => !e.others).length <= 3 ? 'WHO WINS?' : "WHO'S #1?")} t={t} theme={theme} />
 				<Confetti start={outroStart} t={t} />
 				<div
 					style={{

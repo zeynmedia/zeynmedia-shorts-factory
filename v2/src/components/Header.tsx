@@ -8,7 +8,8 @@ export const Header: React.FC<{title: string; subtitle: string; theme: Theme}> =
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const t = frame / fps;
-	const enter = easeOutCubic(t / 0.45);
+	// Readable on frame 0 (the feed preview), with a short punch-in
+	const enter = easeOutCubic(0.55 + t / 0.3);
 	// Light sweep across the title every 4 seconds
 	const sweep = ((t % 4) / 0.9) * 140 - 20;
 	const titleSize = title.length > 18 ? 66 : 80;

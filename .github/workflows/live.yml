@@ -10,6 +10,9 @@ on:
       round_seconds:
         description: "Bir turun süresi (saniye)"
         default: "300"
+      ffmpeg_log:
+        description: "ffmpeg log seviyesi (hata ayıklama için info)"
+        default: "warning"
 
 concurrency:
   group: live
@@ -27,6 +30,7 @@ jobs:
       LIVE_MINUTES: ${{ inputs.minutes }}
       LIVE_ROUND_S: ${{ inputs.round_seconds }}
       DISPLAY: ":99"
+      LIVE_FFMPEG_LOG: ${{ inputs.ffmpeg_log }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

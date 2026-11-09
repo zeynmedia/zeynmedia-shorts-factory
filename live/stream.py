@@ -64,7 +64,7 @@ def music_list():
 def start_ffmpeg(key):
     display = os.environ.get("DISPLAY", ":99")
     cmd = [
-        "ffmpeg", "-loglevel", "warning", "-nostdin",
+        "ffmpeg", "-loglevel", os.environ.get("LIVE_FFMPEG_LOG", "warning"), "-nostdin",
         "-f", "x11grab", "-video_size", f"{W}x{H}", "-framerate", str(FPS), "-draw_mouse", "0", "-i", f"{display}+0,0",
         "-f", "concat", "-safe", "0", "-i", str(music_list()),
         "-map", "0:v", "-map", "1:a",
@@ -100,7 +100,8 @@ def main():
         votes = 0
         while time.time() < end_at:
             if ff.poll() is not None:
-                log("ffmpeg durdu, yeniden başlatılıyor")
+                log(f"ffmpeg durdu (çıkış kodu {ff.returncode}), yeniden başlatılıyor")
+                time.sleep(3)
                 ff = start_ffmpeg(key)
             now = time.time()
             if now >= next_poll:

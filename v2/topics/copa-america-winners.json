@@ -161,5 +161,29 @@
       "others": true
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "Copa América",
+    "subtitle": "Tüm Şampiyonlar",
+    "youtube": {
+      "title": "Arjantin vs Uruguay vs Brezilya: Copa América Kupaları 🏆🔥",
+      "description": "Copa América — Tüm Şampiyonlar\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/copa-america-winners\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "copa america",
+        "argentina",
+        "uruguay",
+        "brazil",
+        "messi",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

@@ -68,9 +68,29 @@ def pick_topic(history, forced):
     return pick
 
 
-def debate_comment(spec):
+def localize(spec, lang):
+    """Applies a topic's language block (e.g. "tr") to on-screen text and YouTube metadata."""
+    block = spec.get(lang) if lang and lang != "en" else None
+    if not block:
+        return spec
+    spec = dict(spec, props=dict(spec["props"]), youtube=block["youtube"])
+    for key in ("title", "subtitle", "hook"):
+        if key in block:
+            spec["props"][key] = block[key]
+    spec["props"]["lang"] = lang
+    if lang == "tr":
+        spec["props"]["steps"] = [dict(st, label=st["label"].replace("AGE ", "YAŞ ")) for st in spec["props"]["steps"]]
+        spec["props"].setdefault("hook", "KİM KAZANIR?" if len([e for e in spec["entities"] if not e.get("others")]) <= 3 else "1 NUMARA KİM?")
+    return spec
+
+
+def debate_comment(spec, lang="en"):
     """Channel's first comment: a question people can answer in one word, plus the next-video hook."""
     names = [e["name"] for e in spec["entities"]]
+    if lang == "tr":
+        if len(names) <= 3:
+            return f"{' mi '.join(names)} mi? Sence gerçek GOAT kim? 🐐👇\nSıradaki kapışma ne olsun? 🏁"
+        return "Sence 1 numara kim olmalı? Yorumlara yaz 👇\nSıradaki kapışma ne olsun? 🏁"
     if len(names) <= 3:
         ask = " or ".join([", ".join(names[:-1]), names[-1]]) if len(names) > 2 else " or ".join(names)
         question = f"{ask}? Who's the real GOAT? 🐐👇"
@@ -176,7 +196,8 @@ def main():
 
     history = load_history()
     slug = pick_topic(history, args.topic)
-    spec = json.loads((TOPICS / f"{slug}.json").read_text(encoding="utf-8"))
+    lang = os.environ.get("VIDEO_LANG") or "en"
+    spec = localize(json.loads((TOPICS / f"{slug}.json").read_text(encoding="utf-8")), lang)
     print(f"[v2] konu: {slug} ({spec['props']['template']}, motor: {args.engine})")
 
     index = load_index()
@@ -208,7 +229,7 @@ def main():
         from upload import post_comment, upload_video
 
         video_id = upload_video(video, yt, privacy=os.environ.get("YT_PRIVACY", "public"))
-        post_comment(video_id, debate_comment(spec))
+        post_comment(video_id, debate_comment(spec, lang))
 
     meta = {
         "topic": f"v2:{slug}",

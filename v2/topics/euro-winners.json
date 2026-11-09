@@ -144,5 +144,31 @@
       "others": true
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "Avrupa Şampiyonları",
+    "subtitle": "Tüm Şampiyonlar",
+    "youtube": {
+      "title": "En Çok EURO Kazanan Ülkeler 🏆🇪🇸",
+      "description": "Avrupa Şampiyonları — Tüm Şampiyonlar\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/euro-winners\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "euro",
+        "spain",
+        "germany",
+        "italy",
+        "france",
+        "portugal",
+        "ronaldo",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

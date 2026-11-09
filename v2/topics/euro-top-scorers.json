@@ -175,5 +175,30 @@
       "country": "gb-eng"
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "EURO",
+    "subtitle": "Tüm Zamanların Golcüleri",
+    "youtube": {
+      "title": "EURO Tarihinin En Golcüleri 😱⚽️",
+      "description": "EURO — Tüm Zamanların Golcüleri\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/euro-top-scorers\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "euro",
+        "cristiano ronaldo",
+        "platini",
+        "griezmann",
+        "kane",
+        "shearer",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

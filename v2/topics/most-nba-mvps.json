@@ -136,5 +136,31 @@
       "country": "us"
     }
   ],
-  "category": "Basketball"
+  "category": "Basketball",
+  "tr": {
+    "title": "En Çok NBA MVP",
+    "subtitle": "Normal Sezon MVP",
+    "youtube": {
+      "title": "En Çok NBA MVP Ödülü Alanlar 🏀👑",
+      "description": "En Çok NBA MVP — Normal Sezon MVP\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/most-nba-mvps\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "nba",
+        "mvp",
+        "kareem",
+        "jordan",
+        "lebron",
+        "bill russell",
+        "wilt chamberlain",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

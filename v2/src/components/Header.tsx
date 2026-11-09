@@ -13,7 +13,7 @@ export const Header: React.FC<{title: string; subtitle: string; theme: Theme}> =
 	// Light sweep across the title every 4 seconds
 	const sweep = ((t % 4) / 0.9) * 140 - 20;
 	// One line always: long three-way titles shrink instead of wrapping into the hook badge
-	const titleSize = Math.min(80, Math.floor(1550 / Math.max(1, title.length)));
+	const titleSize = Math.min(80, Math.floor(1450 / Math.max(1, title.length)));
 
 	return (
 		<div

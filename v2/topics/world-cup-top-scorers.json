@@ -283,5 +283,30 @@
       "country": "fr"
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "Dünya Kupası",
+    "subtitle": "Tüm Zamanların Golcüleri",
+    "youtube": {
+      "title": "Dünya Kupası Tarihinin En Golcüleri 😱⚽️",
+      "description": "Dünya Kupası — Tüm Zamanların Golcüleri\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/world-cup-top-scorers\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "world cup",
+        "klose",
+        "ronaldo",
+        "messi",
+        "mbappe",
+        "pele",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

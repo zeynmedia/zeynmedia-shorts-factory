@@ -150,5 +150,30 @@
       "team": "San Antonio Spurs"
     }
   ],
-  "category": "Basketball"
+  "category": "Basketball",
+  "tr": {
+    "title": "NBA Şampiyonları",
+    "subtitle": "En Çok Şampiyonluk",
+    "youtube": {
+      "title": "EN ÇOK NBA ŞAMPİYONLUĞU! 🏀🏆",
+      "description": "NBA Şampiyonları — En Çok Şampiyonluk\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/most-nba-titles\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "nba",
+        "celtics",
+        "lakers",
+        "warriors",
+        "bulls",
+        "spurs",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

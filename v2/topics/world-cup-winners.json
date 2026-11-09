@@ -192,5 +192,30 @@
       "others": true
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "Dünya Kupası",
+    "subtitle": "Tüm Şampiyonlar",
+    "youtube": {
+      "title": "En Çok Dünya Kupası Kazanan Ülkeler 🏆🌍",
+      "description": "Dünya Kupası — Tüm Şampiyonlar\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/world-cup-winners\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "world cup",
+        "brazil",
+        "germany",
+        "argentina",
+        "messi",
+        "fifa",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

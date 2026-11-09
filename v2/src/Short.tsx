@@ -75,7 +75,7 @@ export const Short: React.FC<ShortProps> = (p) => {
 	const flash = Math.max((t - (tm.duration - 0.22)) / 0.22, 0);
 
 	return (
-		<AbsoluteFill style={{background: '#000', overflow: 'hidden', fontFamily: fonts.title}}>
+		<AbsoluteFill lang={p.lang} style={{background: '#000', overflow: 'hidden', fontFamily: fonts.title}}>
 			<AbsoluteFill
 				style={{
 					transform: `translate(${Math.sin(t * 90) * shake}px, ${Math.cos(t * 77) * shake}px) scale(${camScale})`,

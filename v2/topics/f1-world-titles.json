@@ -375,5 +375,30 @@
       "country": "es"
     }
   ],
-  "category": "Motorsport"
+  "category": "Motorsport",
+  "tr": {
+    "title": "F1 Şampiyonlukları",
+    "subtitle": "1994 - 2024",
+    "youtube": {
+      "title": "Hamilton vs Schumacher vs Verstappen: F1 Şampiyonlukları 🏎️🏆",
+      "description": "F1 Şampiyonlukları — 1994 - 2024\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/f1-world-titles\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "f1",
+        "formula 1",
+        "hamilton",
+        "schumacher",
+        "verstappen",
+        "vettel",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

@@ -126,5 +126,31 @@
       "country": "es"
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "Avrupa Ligi",
+    "subtitle": "En Çok Kupa",
+    "youtube": {
+      "title": "EN ÇOK AVRUPA LİGİ KAZANANLAR! 🏆😱",
+      "description": "Avrupa Ligi — En Çok Kupa\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/most-europa-league-wins\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "europa league",
+        "uefa cup",
+        "sevilla",
+        "inter",
+        "liverpool",
+        "juventus",
+        "atletico",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

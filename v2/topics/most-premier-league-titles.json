@@ -395,5 +395,30 @@
       "country": "gb-eng"
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "Premier Lig",
+    "subtitle": "En Çok Şampiyonluk",
+    "youtube": {
+      "title": "EN ÇOK PREMIER LİG ŞAMPİYONLUĞU! 😱🏆",
+      "description": "Premier Lig — En Çok Şampiyonluk\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/most-premier-league-titles\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "premier league",
+        "man united",
+        "man city",
+        "chelsea",
+        "arsenal",
+        "liverpool",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

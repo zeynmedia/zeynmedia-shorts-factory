@@ -1,0 +1,166 @@
+name: Shorts TR (@nukieer)
+
+on:
+  schedule:
+    # Hourly gate; factory/schedule_gate.py picks 2-3 random hours per day
+    - cron: "29 * * * *"
+  workflow_dispatch:
+    inputs:
+      via_cron:
+        description: "Cloudflare zamanlayıcısından geldi (saat kapısından geçer)"
+        type: boolean
+        default: false
+      topic:
+        description: "v2/topics içinden konu adı, örn. world-cup-winners (boş = sıradaki)"
+        required: false
+        default: ""
+      privacy:
+        description: "YouTube görünürlüğü"
+        type: choice
+        options: [public, unlisted, private]
+        default: public
+      skip_upload:
+        description: "Sadece video üret, YouTube'a yükleme"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ (github.event_name == 'workflow_dispatch' && !inputs.via_cron) && 'true' || steps.gate.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'schedule' || inputs.via_cron
+      - id: gate
+        if: github.event_name == 'schedule' || inputs.via_cron
+        run: python3 factory/schedule_gate.py
+        env:
+          HISTORY_FILE: data/history_tr.json
+
+  produce:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: shorts-tr
+      cancel-in-progress: false
+    env:
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+      YT_CLIENT_ID: ${{ secrets.LIVE_YT_CLIENT_ID }}
+      YT_CLIENT_SECRET: ${{ secrets.LIVE_YT_CLIENT_SECRET }}
+      YT_REFRESH_TOKEN: ${{ secrets.LIVE_YT_REFRESH_TOKEN }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY }}
+      NIM_MODEL: ${{ vars.NIM_MODEL }}
+      GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+      CONTENT_LANG: tr
+      VIDEO_LANG: tr
+      HISTORY_FILE: data/history_tr.json
+      MUSIC_DIR: music-repo
+      ENGINE: v2
+      INPUT_TOPIC: ${{ inputs.topic }}
+      YT_PRIVACY: ${{ inputs.privacy || vars.YT_PRIVACY || 'public' }}
+      VIA_CRON: ${{ inputs.via_cron || false }}
+      SKIP_UPLOAD: ${{ inputs.skip_upload || secrets.LIVE_YT_REFRESH_TOKEN == '' }}
+    steps:
+      - name: Random minute jitter
+        if: github.event_name == 'schedule' || inputs.via_cron
+        # Kept well under an hour so history is pushed before the next hourly gate
+        run: sleep $((RANDOM % 1500))
+
+      - uses: actions/checkout@v4
+
+      # Music lives in the private repo; read-only deploy key
+      - uses: actions/checkout@v4
+        with:
+          repository: zeynmedia/zeynmedia-music
+          ssh-key: ${{ secrets.MUSIC_DEPLOY_KEY }}
+          path: music-repo
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: v2/requirements.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: v2/package-lock.json
+
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: |
+          pip install -r v2/requirements.txt
+          if [ "$ENGINE" = "studio" ]; then
+            pip install playwright==1.49.1 && python -m playwright install --with-deps chromium
+          else
+            cd v2 && npm ci && npx remotion browser ensure
+          fi
+
+      - name: Produce short
+        timeout-minutes: 35
+        env:
+          GATED: ${{ github.event_name == 'schedule' || inputs.via_cron }}
+        run: |
+          # Both GitHub's schedule and the Cloudflare cron can queue a run; re-check after the queue so a slot is filled once.
+          # The checkout is the commit that triggered the run, so pull the latest history first (else both runs pick the same topic)
+          git fetch -q origin main && git checkout origin/main -- data/
+          if [ "$GATED" = "true" ]; then
+            python3 factory/schedule_gate.py | tee gate.txt
+            grep -q "ÇALIŞ" gate.txt || { echo "Bu saatin videosu zaten yüklendi"; exit 0; }
+          fi
+          python v2/factory/produce.py
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tr-${{ github.run_id }}
+          path: output/*.mp4
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Publish release
+        if: success() && hashFiles('output/*.mp4') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          meta=$(ls output/*.json | head -1)
+          base="${meta%.json}"
+          tag="tr-$(basename "$base" | cut -c1-15)"
+          python - "$meta" > notes.md <<'EOF'
+          import json, sys
+          m = json.load(open(sys.argv[1], encoding="utf-8"))
+          yt = m["youtube"]
+          print(f"**{m['headerTitle']}** - {m['headerSubtitle']}\n")
+          if m.get("video_id"):
+              print(f"YouTube: https://youtube.com/shorts/{m['video_id']}\n")
+          print(f"Konu: {m['topic']}\n\n### Açıklama\n{yt['description']}\n\n### Etiketler\n{', '.join(yt['tags'])}")
+          EOF
+          title=$(python -c "import json,sys;print(json.load(open(sys.argv[1],encoding='utf-8'))['youtube']['title'])" "$meta")
+          gh release create "$tag" output/* --title "$title" --notes-file notes.md
+
+      - name: Save history
+        if: success() && hashFiles('output/history-entry.json') != ''
+        run: |
+          git config user.name "zeynmedia-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          hist="${HISTORY_FILE:-data/history.json}"
+          cp v2/public/assets/index.json "$RUNNER_TEMP/index.json"
+          # Re-sync and re-append so parallel runs of either line never conflict on the history file
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp "$RUNNER_TEMP/index.json" v2/public/assets/index.json
+            python3 v2/factory/append_history.py output/history-entry.json "$hist"
+            git add "$hist" v2/public/assets
+            git diff --cached --quiet && break
+            git commit -qm "tr history: $(date -u +%F' '%H:%M)" && git push -q && break
+            sleep $((RANDOM % 10 + 5))
+          done

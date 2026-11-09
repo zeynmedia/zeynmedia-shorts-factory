@@ -99,5 +99,29 @@
       "country": "tr"
     }
   ],
-  "category": "Football"
+  "category": "Football",
+  "tr": {
+    "title": "Galatasaray vs Fenerbahçe",
+    "subtitle": "Süper Lig Şampiyonlukları",
+    "youtube": {
+      "title": "Galatasaray vs Fenerbahçe Şampiyonluk Yarışı 🦁🐤",
+      "description": "Galatasaray vs Fenerbahçe — Süper Lig Şampiyonlukları\n\nKendi viral Shorts videonu ücretsiz yap: https://studio.zeynelerek.com/templates/galatasaray-vs-fenerbahce\n\n#shorts #futbol #spor #istatistik #barchartrace",
+      "tags": [
+        "galatasaray",
+        "fenerbahce",
+        "super lig",
+        "turkish football",
+        "derbi",
+        "shorts",
+        "sports stats",
+        "bar chart race",
+        "comparison",
+        "futbol",
+        "spor",
+        "istatistik",
+        "kim daha iyi",
+        "türkçe"
+      ]
+    }
+  }
 }

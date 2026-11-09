@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math GP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Titillium+Web:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Titillium Web', sans-serif; color: #fff; }
+	#stage { position: absolute; left: 50%; top: 50%; width: 1080px; height: 1920px; overflow: hidden; transform-origin: center center; background: #000; }
+	#gl { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+	.ui { position: absolute; }
+	/* F1 TV style graphics */
+	#brand { top: 30px; left: 36px; display: flex; align-items: center; gap: 12px; font: 900 34px 'Titillium Web'; letter-spacing: 1px; font-style: italic; }
+	#brand i { width: 14px; height: 40px; background: #e10600; transform: skewX(-18deg); }
+	#lap { top: 30px; right: 36px; background: rgba(15,15,20,0.85); border-left: 8px solid #e10600; padding: 6px 22px; font: 900 34px 'Titillium Web'; letter-spacing: 1px; }
+	#lap b { color: #e10600; }
+	#qbox { top: 110px; left: 70px; right: 70px; height: 210px; border-radius: 10px; background: linear-gradient(180deg, rgba(22,22,30,0.92), rgba(10,10,16,0.92));
+		border-top: 8px solid #e10600; box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align: center; overflow: hidden; }
+	#qlabel { margin-top: 14px; font: 700 26px 'Titillium Web'; letter-spacing: 4px; color: #b9bccb; }
+	#question { font: 400 128px/1 'Bebas Neue'; letter-spacing: 6px; }
+	#qtimer { position: absolute; left: 0; bottom: 0; height: 10px; background: linear-gradient(90deg, #e10600, #ffcf3f, #36f07e); }
+	#qbox.solved { animation: solved 0.5s; }
+	@keyframes solved { 30% { transform: scale(1.04); box-shadow: 0 0 80px rgba(54,240,126,0.6); } }
+	#solver { top: 332px; left: 0; right: 0; text-align: center; font: 900 38px 'Titillium Web'; text-shadow: 0 3px 10px #000, 0 0 20px #000; opacity: 0; transition: opacity 0.2s; }
+	#tower { top: 420px; left: 26px; width: 330px; }
+	.trow { position: absolute; left: 0; height: 64px; width: 330px; display: flex; align-items: center; background: rgba(12,12,18,0.82);
+		border-bottom: 2px solid rgba(255,255,255,0.06); transition: top 0.45s cubic-bezier(.2,.8,.2,1); }
+	.trow .p { width: 50px; text-align: center; font: 900 30px 'Titillium Web'; }
+	.trow .c { width: 8px; height: 40px; }
+	.trow .n { flex: 1; padding-left: 14px; font: 900 30px 'Titillium Web'; letter-spacing: 1px; }
+	.trow .g { padding-right: 14px; font: 700 22px 'Titillium Web'; color: #c7c9d6; text-align: right; line-height: 1.05; }
+	.trow.lead { background: rgba(225,6,0,0.85); }
+	.trow.lead .g { color: #fff; }
+	#feed { top: 1620px; left: 26px; right: 26px; height: 200px; overflow: hidden; }
+	.fi { position: absolute; left: 0; font: 700 28px/1.2 'Titillium Web'; text-shadow: 0 2px 6px #000, 0 0 12px #000; transition: top 0.3s, opacity 0.3s; white-space: nowrap; }
+	.fi em { font-style: normal; font-weight: 900; }
+	#hint { bottom: 26px; left: 0; right: 0; text-align: center; font: 900 30px 'Titillium Web'; text-shadow: 0 3px 8px #000; letter-spacing: 0.5px; }
+	#hint span { color: #ffcf3f; }
+	#camtag { top: 1560px; right: 30px; font: 700 22px 'Titillium Web'; letter-spacing: 3px; opacity: 0.75; text-shadow: 0 2px 6px #000; }
+	#lights { top: 700px; left: 0; right: 0; display: none; justify-content: center; gap: 22px; }
+	#lights.show { display: flex; }
+	.light { width: 150px; height: 340px; border-radius: 22px; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: space-around; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
+	.light i { width: 104px; height: 104px; border-radius: 50%; background: #2a0505; }
+	.light.on i { background: radial-gradient(circle at 40% 35%, #ff6b6b, #e10600 60%); box-shadow: 0 0 50px #ff1f1f; }
+	#go { top: 760px; left: 0; right: 0; text-align: center; font: 400 300px 'Bebas Neue'; color: #36f07e; text-shadow: 0 0 60px rgba(54,240,126,0.7); display: none; }
+	#podium { inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+		background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.8) 38%, rgba(0,0,0,0.92)); }
+	#podium.show { display: flex; animation: pop 0.5s ease-out; }
+	@keyframes pop { from { opacity: 0; transform: scale(1.08); } }
+	#podium .chk { width: 600px; height: 60px; background: repeating-conic-gradient(#fff 0 25%, #111 0 50%) 0 0 / 60px 60px; }
+	#podium h2 { font: 900 44px 'Titillium Web'; letter-spacing: 8px; color: #ffcf3f; }
+	#podium h1 { font: 900 130px/1 'Titillium Web'; font-style: italic; letter-spacing: 2px; }
+	#mvps { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; width: 840px; }
+	.mvp { display: flex; align-items: center; gap: 20px; padding: 14px 28px; background: rgba(255,255,255,0.08); border-left: 8px solid #e10600; font: 900 42px 'Titillium Web'; }
+	.mvp .m { font-size: 52px; }
+	.mvp .nm { flex: 1; }
+	.mvp .ct { font: 400 56px 'Bebas Neue'; color: #ffcf3f; }
+	#next { font: 700 32px 'Titillium Web'; opacity: 0.85; margin-top: 8px; }
+</style>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="stage">
+	<canvas id="gl"></canvas>
+	<div class="ui" id="brand"><i></i>MATH GP</div>
+	<div class="ui" id="lap">LAP <b>1</b>/5</div>
+	<div class="ui" id="qbox"><div id="qlabel">FASTER ANSWER = MORE POINTS</div><div id="question">READY</div><div id="qtimer"></div></div>
+	<div class="ui" id="solver"></div>
+	<div class="ui" id="tower"></div>
+	<div class="ui" id="camtag"></div>
+	<div class="ui" id="feed"></div>
+	<div class="ui" id="hint">Comment to join a team · <span>answer fast = more points 🔥</span></div>
+	<div class="ui" id="lights"></div>
+	<div class="ui" id="go">GO!</div>
+	<div class="ui" id="podium"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+
+// ---------- config ----------
+const params = new URLSearchParams(location.search);
+const LAPS = Number(params.get('laps') || 5);
+const BASE_LAP_S = 48;         // a lap with nobody answering; the race never stands still
+const Q_TIME = 9;              // answer window; points fall from 1000 to 500 across it
+const FIRST_BONUS = 300;
+const LAP_PER_1000 = 0.11;     // 1000 points = 11% of a lap
+const ACTIVE_S = 180;          // members count toward team size while they commented in the last 3 min
+const TEAMS = [
+	{id: 'stars', name: 'STARS', short: 'STR', color: 0xffc800, css: '#ffc800', num: 1},
+	{id: 'zore', name: 'ZORE', short: 'ZOR', color: 0xe10600, css: '#ff2a1f', num: 2},
+	{id: 'thunder', name: 'THUNDER', short: 'THU', color: 0x1e6bff, css: '#3d8bff', num: 3},
+	{id: 'venom', name: 'VENOM', short: 'VEN', color: 0x00d26a, css: '#22e07e', num: 4},
+	{id: 'blaze', name: 'BLAZE', short: 'BLZ', color: 0xff7a00, css: '#ff8a1f', num: 5},
+];
+const LANES = [-6.4, -3.2, 0, 3.2, 6.4];
+const ROAD_W = 20;
+
+// ---------- renderer / scene ----------
+const W = 1080, H = 1920;
+const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('gl'), antialias: true, powerPreference: 'high-performance'});
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x9cc6ff, 160, 520);
+const camera = new THREE.PerspectiveCamera(62, W / H, 0.5, 1500);
+
+{
+	const c = document.createElement('canvas'); c.width = 4; c.height = 256;
+	const x = c.getContext('2d'), gr = x.createLinearGradient(0, 0, 0, 256);
+	gr.addColorStop(0, '#2c6cff'); gr.addColorStop(0.45, '#7fb4ff'); gr.addColorStop(0.55, '#cfe3ff'); gr.addColorStop(1, '#cfe3ff');
+	x.fillStyle = gr; x.fillRect(0, 0, 4, 256);
+	const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+	scene.add(new THREE.Mesh(new THREE.SphereGeometry(900, 32, 16), new THREE.MeshBasicMaterial({map: t, side: THREE.BackSide, fog: false})));
+}
+scene.add(new THREE.HemisphereLight(0xcfe3ff, 0x2f5a22, 0.9));
+const sun = new THREE.DirectionalLight(0xfff2dd, 2.2);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, {left: -60, right: 60, top: 60, bottom: -60, near: 10, far: 400});
+scene.add(sun, sun.target);
+
+// ---------- track ----------
+const CTRL = [[0, 0], [70, -6], [130, 8], [158, 52], [140, 100], [92, 108], [60, 140], [70, 190], [30, 222], [-30, 210],
+	[-62, 168], [-110, 160], [-146, 118], [-138, 66], [-96, 46], [-52, 30]].map(([x, z]) => new THREE.Vector3(x, 0, z));
+const curve = new THREE.CatmullRomCurve3(CTRL, true, 'centripetal');
+const L = curve.getLength();
+const START_U = 0.02;
+const SEG = 1400;
+const frames = [];
+for (let i = 0; i <= SEG; i++) {
+	const u = (i / SEG) % 1, p = curve.getPointAt(u), t = curve.getTangentAt(u);
+	frames.push({p, t, n: new THREE.Vector3(-t.z, 0, t.x).normalize()});
+}
+/** Position, tangent and side normal at distance d along the lap (from the start line). */
+function at(d) {
+	const u = (((START_U + d / L) % 1) + 1) % 1;
+	const f = u * SEG, i = Math.min(SEG - 1, Math.floor(f)), k = f - i, a = frames[i], b = frames[i + 1];
+	return {p: a.p.clone().lerp(b.p, k), t: a.t.clone().lerp(b.t, k).normalize(), n: a.n.clone().lerp(b.n, k).normalize()};
+}
+
+function canvasTex(w, h, draw, repeatU = 1, repeatV = 1) {
+	const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+	const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeatU, repeatV);
+	t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+/** A flat ribbon following the curve between side offsets o1..o2, with V running along the lap. */
+function ribbon(o1, o2, y, mat, vScale) {
+	const pos = [], uv = [], idx = [];
+	for (let i = 0; i <= SEG; i++) {
+		const {p, n} = frames[i];
+		pos.push(p.x + n.x * o1, y, p.z + n.z * o1, p.x + n.x * o2, y, p.z + n.z * o2);
+		const v = ((i / SEG) * L) / vScale;
+		uv.push(0, v, 1, v);
+		if (i < SEG) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+	}
+	const g = new THREE.BufferGeometry();
+	g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+	g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+	g.setIndex(idx); g.computeVertexNormals();
+	const m = new THREE.Mesh(g, mat); m.receiveShadow = true; m.material.side = THREE.DoubleSide; scene.add(m); return m;
+}
+{
+	const tex = canvasTex(512, 512, (x, w, h) => {
+		x.fillStyle = '#3f8f2c'; x.fillRect(0, 0, w, h);
+		for (let i = 0; i < 9000; i++) { x.fillStyle = `rgba(${20 + Math.random() * 60},${90 + Math.random() * 80},${20 + Math.random() * 40},0.35)`; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+		for (let i = 0; i < 8; i++) { x.fillStyle = i % 2 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'; x.fillRect(0, (i * h) / 8, w, h / 8); }
+	}, 60, 60);
+	const ground = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshStandardMaterial({map: tex, roughness: 1}));
+	ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.05, 100); ground.receiveShadow = true; scene.add(ground);
+}
+ribbon(-ROAD_W / 2 - 7, ROAD_W / 2 + 7, 0.0, new THREE.MeshStandardMaterial({color: 0x9b8d74, roughness: 1}), 10);
+const asphalt = canvasTex(256, 256, (x, w, h) => {
+	x.fillStyle = '#34363d'; x.fillRect(0, 0, w, h);
+	for (let i = 0; i < 6000; i++) { const v = 40 + Math.random() * 40; x.fillStyle = `rgba(${v},${v},${v + 6},0.5)`; x.fillRect(Math.random() * w, Math.random() * h, 1.5, 1.5); }
+	x.fillStyle = 'rgba(255,255,255,0.55)';
+	for (const lx of [0.2, 0.4, 0.6, 0.8]) x.fillRect(lx * w - 2, 0, 4, h * 0.45);
+});
+ribbon(-ROAD_W / 2, ROAD_W / 2, 0.02, new THREE.MeshStandardMaterial({map: asphalt, roughness: 0.92}), 8);
+const kerbTex = canvasTex(64, 64, (x, w, h) => { x.fillStyle = '#e10600'; x.fillRect(0, 0, w, h / 2); x.fillStyle = '#fff'; x.fillRect(0, h / 2, w, h / 2); });
+for (const s of [-1, 1]) {
+	ribbon(s * ROAD_W / 2, s * (ROAD_W / 2 + 1.6), 0.04, new THREE.MeshStandardMaterial({map: kerbTex, roughness: 0.7}), 3);
+	ribbon(s * (ROAD_W / 2 - 0.25), s * (ROAD_W / 2 - 0.05), 0.05, new THREE.MeshBasicMaterial({color: 0xffffff}), 4);
+}
+{
+	const {p, t} = at(0);
+	const chk = canvasTex(128, 32, (x) => { for (let i = 0; i < 16; i++) for (let j = 0; j < 4; j++) { x.fillStyle = (i + j) % 2 ? '#111' : '#fff'; x.fillRect(i * 8, j * 8, 8, 8); } });
+	const line = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_W, 2), new THREE.MeshStandardMaterial({map: chk}));
+	line.position.copy(p).setY(0.06); line.lookAt(p.clone().add(new THREE.Vector3(0, 1, 0))); line.rotation.z = Math.atan2(t.x, t.z);
+	scene.add(line);
+	const gantry = new THREE.Group();
+	const mat = new THREE.MeshStandardMaterial({color: 0x1b1b22, metalness: 0.6, roughness: 0.4});
+	for (const s of [-1, 1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(1, 11, 1), mat); post.position.set(s * (ROAD_W / 2 + 2), 5.5, 0); gantry.add(post); }
+	const beam = new THREE.Mesh(new THREE.BoxGeometry(ROAD_W + 6, 2.2, 1.2), mat); beam.position.y = 11; gantry.add(beam);
+	const bannerTex = canvasTex(512, 48, (x, w) => { x.fillStyle = '#e10600'; x.fillRect(0, 0, w, 48); x.fillStyle = '#fff'; x.font = 'italic 900 34px sans-serif'; x.textAlign = 'center'; x.fillText('MATH GP · FINISH', w / 2, 36); });
+	for (const z of [-0.65, 0.65]) {
+		const banner = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_W + 4, 2), new THREE.MeshBasicMaterial({map: bannerTex}));
+		banner.position.set(0, 11, z); if (z < 0) banner.rotation.y = Math.PI; gantry.add(banner);
+	}
+	gantry.position.copy(p); gantry.lookAt(p.clone().add(t)); gantry.traverse((o) => (o.castShadow = true)); scene.add(gantry);
+}
+const crowdTex = canvasTex(256, 128, (x, w, h) => {
+	x.fillStyle = '#2b2f45'; x.fillRect(0, 0, w, h);
+	const cols = ['#e10600', '#ffc800', '#1e6bff', '#ffffff', '#00d26a', '#ff7a00', '#f2c9a0', '#8a5a3c'];
+	for (let i = 0; i < 2600; i++) { x.fillStyle = cols[Math.floor(Math.random() * cols.length)]; x.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
+	x.fillStyle = 'rgba(0,0,0,0.25)'; for (let r = 0; r < h; r += 8) x.fillRect(0, r, w, 2);
+}, 4, 1);
+const adTex = canvasTex(512, 64, (x, w, h) => {
+	const ads = [['#e10600', 'MATH GP'], ['#111', 'ZEYN MEDYA'], ['#1e6bff', 'COMMENT TO RACE'], ['#ffc800', 'FAST = POINTS']];
+	ads.forEach(([c, s], i) => { x.fillStyle = c; x.fillRect((i * w) / 4, 0, w / 4, h); x.fillStyle = c === '#ffc800' ? '#111' : '#fff'; x.font = 'italic 900 26px sans-serif'; x.textAlign = 'center'; x.fillText(s, ((i + 0.5) * w) / 4, 42); });
+}, 6, 1);
+function standAt(d, side, len) {
+	const {p, n} = at(d);
+	const g = new THREE.Group();
+	const grey = new THREE.MeshStandardMaterial({color: 0x3a3f55});
+	const stand = new THREE.Mesh(new THREE.BoxGeometry(len, 9, 10), [grey, grey, grey, grey, new THREE.MeshStandardMaterial({map: crowdTex}), grey]);
+	stand.position.set(0, 4.5, 0); stand.rotation.x = -0.35; g.add(stand);
+	const roof = new THREE.Mesh(new THREE.BoxGeometry(len + 2, 0.6, 12), new THREE.MeshStandardMaterial({color: 0xeeeeee})); roof.position.set(0, 11, -1); g.add(roof);
+	g.position.copy(p).add(n.clone().multiplyScalar(side * (ROAD_W / 2 + 22)));
+	g.lookAt(p.x, 0, p.z);
+	g.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
+	scene.add(g);
+}
+[[0, 1, 70], [0, -1, 70], [0.3, 1, 50], [0.55, -1, 60], [0.8, 1, 50]].forEach(([u, s, l]) => standAt(u * L, s, l));
+{
+	const black = new THREE.MeshStandardMaterial({color: 0x222222}), adMat = new THREE.MeshBasicMaterial({map: adTex});
+	for (let d = 0; d < L; d += 14) {
+		const {p, t, n} = at(d);
+		for (const s of [-1, 1]) {
+			if (Math.random() < 0.35) continue;
+			const board = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 12), [black, black, black, black, adMat, adMat]);
+			board.position.copy(p).add(n.clone().multiplyScalar(s * (ROAD_W / 2 + 8))).setY(0.6);
+			board.lookAt(board.position.clone().add(t)); board.rotateY(Math.PI / 2);
+			scene.add(board);
+		}
+	}
+}
+{
+	const trunk = new THREE.CylinderGeometry(0.4, 0.6, 3, 6), crown = new THREE.ConeGeometry(3, 7, 7);
+	const tm = new THREE.MeshStandardMaterial({color: 0x5b3a1e}), cm = new THREE.MeshStandardMaterial({color: 0x2f7d32, roughness: 1});
+	const v = new THREE.Vector3();
+	for (let i = 0; i < 260; i++) {
+		v.set((Math.random() - 0.5) * 700, 0, 110 + (Math.random() - 0.5) * 700);
+		let near = false;
+		for (let j = 0; j < SEG; j += 20) if (frames[j].p.distanceTo(v) < ROAD_W + 40) { near = true; break; }
+		if (near) continue;
+		const tr = new THREE.Group(), a = new THREE.Mesh(trunk, tm), b = new THREE.Mesh(crown, cm);
+		a.position.y = 1.5; b.position.y = 6; tr.add(a, b); tr.position.copy(v);
+		tr.scale.setScalar(0.8 + Math.random() * 0.9); tr.traverse((o) => (o.castShadow = true)); scene.add(tr);
+	}
+}
+
+// ---------- F1 cars ----------
+function makeCar(team) {
+	const car = new THREE.Group();
+	const paint = new THREE.MeshStandardMaterial({color: team.color, metalness: 0.45, roughness: 0.3});
+	const dark = new THREE.MeshStandardMaterial({color: 0x15161c, metalness: 0.3, roughness: 0.5});
+	const white = new THREE.MeshStandardMaterial({color: 0xf2f2f2, metalness: 0.2, roughness: 0.4});
+	const add = (geo, mat, x, y, z, rx = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.x = rx; m.castShadow = true; car.add(m); return m; };
+	add(new THREE.BoxGeometry(0.9, 0.45, 3.2), paint, 0, 0.55, 0.1);                          // monocoque
+	add(new THREE.CylinderGeometry(0.12, 0.42, 2.0, 8), paint, 0, 0.5, 2.6, Math.PI / 2);       // nose
+	add(new THREE.BoxGeometry(2.3, 0.07, 0.55), dark, 0, 0.22, 3.45);                            // front wing
+	add(new THREE.BoxGeometry(2.3, 0.18, 0.06), paint, 0, 0.3, 3.7);
+	for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.06, 0.4, 0.7), dark, s * 1.15, 0.35, 3.45);
+	for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.55, 0.42, 1.8), paint, s * 0.68, 0.5, -0.2); // sidepods
+	add(new THREE.BoxGeometry(0.5, 0.55, 1.6), paint, 0, 0.85, -0.9, -0.15);                    // engine cover
+	add(new THREE.BoxGeometry(0.06, 0.55, 1.4), white, 0, 1.1, -1.0);                            // shark fin
+	add(new THREE.BoxGeometry(1.7, 0.08, 0.5), dark, 0, 1.25, -1.95);                            // rear wing
+	add(new THREE.BoxGeometry(1.7, 0.22, 0.06), paint, 0, 1.36, -2.15);
+	for (const s of [-1, 1]) add(new THREE.BoxGeometry(0.06, 0.8, 0.6), dark, s * 0.86, 0.9, -1.95);
+	add(new THREE.SphereGeometry(0.26, 16, 12), white, 0, 0.98, 0.35);                           // helmet
+	add(new THREE.SphereGeometry(0.27, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2.6), paint, 0, 0.99, 0.35);
+	const halo = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.045, 8, 20, Math.PI), dark);
+	halo.position.set(0, 0.95, 0.55); halo.rotation.set(-Math.PI / 2, 0, Math.PI); car.add(halo);
+	const numTex = canvasTex(128, 128, (x) => { x.fillStyle = '#fff'; x.beginPath(); x.arc(64, 64, 56, 0, Math.PI * 2); x.fill(); x.fillStyle = '#111'; x.font = '900 84px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(team.num, 64, 70); });
+	const num = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.62), new THREE.MeshBasicMaterial({map: numTex, transparent: true}));
+	num.rotation.x = -Math.PI / 2; num.position.set(0, 0.785, 1.25); car.add(num);
+	car.userData.wheels = [];
+	const tyre = new THREE.CylinderGeometry(0.42, 0.42, 0.42, 22), rim = new THREE.CylinderGeometry(0.24, 0.24, 0.44, 14);
+	const tyreMat = new THREE.MeshStandardMaterial({color: 0x101010, roughness: 0.85}), rimMat = new THREE.MeshStandardMaterial({color: team.color, metalness: 0.7, roughness: 0.3});
+	for (const [x, z, sc] of [[-0.98, 1.95, 0.92], [0.98, 1.95, 0.92], [-0.98, -1.55, 1.05], [0.98, -1.55, 1.05]]) {
+		const spin = new THREE.Group();
+		const t = new THREE.Mesh(tyre, tyreMat); t.rotation.z = Math.PI / 2; t.castShadow = true;
+		const r = new THREE.Mesh(rim, rimMat); r.rotation.z = Math.PI / 2;
+		spin.add(t, r);
+		const w = new THREE.Group(); w.add(spin); w.position.set(x, 0.42 * sc, z); w.scale.setScalar(sc); car.add(w); car.userData.wheels.push(spin);
+	}
+	const flame = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.3, 10, 1, true), new THREE.MeshBasicMaterial({color: 0xffa21f, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false}));
+	flame.rotation.x = -Math.PI / 2; flame.position.set(0, 0.5, -3.1); car.add(flame); car.userData.flame = flame;
+	const glow = new THREE.PointLight(team.color, 0, 14); glow.position.set(0, 1, -2.5); car.add(glow); car.userData.glow = glow;
+	scene.add(car);
+	return car;
+}
+function tagSprite() {
+	const c = document.createElement('canvas'); c.width = 512; c.height = 96;
+	const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+	const s = new THREE.Sprite(new THREE.SpriteMaterial({map: t, transparent: true, depthTest: false}));
+	s.scale.set(4.2, 0.8, 1); s.visible = false; scene.add(s);
+	s.userData.draw = (text, color) => {
+		const x = c.getContext('2d'); x.clearRect(0, 0, 512, 96);
+		x.font = '900 52px sans-serif'; const w = Math.min(500, x.measureText(text).width + 40);
+		x.fillStyle = color; x.beginPath(); x.roundRect(256 - w / 2, 10, w, 76, 38); x.fill();
+		x.fillStyle = '#111'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, 256, 50); t.needsUpdate = true;
+	};
+	return s;
+}
+
+// ---------- game state ----------
+const state = {
+	phase: 'lights', race: 0,
+	cars: TEAMS.map((team, i) => ({team, lane: LANES[i], dist: 0, v: 0, burst: 0, burstLeft: 0, points: 0, mesh: makeCar(team), tag: tagSprite(), lastAt: -1e9, lastName: '', lastPts: 0})),
+	members: new Map(), q: null,
+};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
+
+function teamSizes(now) {
+	const sizes = Object.fromEntries(TEAMS.map((t) => [t.id, 0]));
+	for (const m of state.members.values()) if (now - m.lastSeen < ACTIVE_S * 1000) sizes[m.team.id]++;
+	return sizes;
+}
+/** New commenters join the team with the fewest active members, so teams stay even. */
+function assign(user, now) {
+	const sizes = teamSizes(now), min = Math.min(...Object.values(sizes));
+	const pool = TEAMS.filter((t) => sizes[t.id] === min), team = pool[Math.floor(Math.random() * pool.length)];
+	const m = {team, lastSeen: now, points: 0, streak: 0, best: Infinity};
+	state.members.set(user, m);
+	feed(`<em style="color:${team.css}">${esc(user)}</em> joined ${team.name} 🏎️`);
+	return m;
+}
+
+function leaderLaps() { return Math.max(...state.cars.map((c) => c.dist)) / L; }
+function newQuestion() {
+	const lvl = Math.min(3, Math.floor(leaderLaps() / Math.max(1, LAPS / 4)));
+	const max = [9, 15, 25, 50][lvl];
+	const a = 1 + Math.floor(Math.random() * max), b = 1 + Math.floor(Math.random() * max);
+	state.q = {a, b, answer: a + b, start: performance.now(), solvedBy: null, answered: new Set(), correct: [], closed: false};
+	$('question').textContent = `${a} + ${b}`;
+	$('qlabel').textContent = 'FASTER ANSWER = MORE POINTS';
+	$('qbox').classList.remove('solved');
+}
+/** Kahoot-style: 1000 points at 0 s down to 500 at the buzzer, +10% per streak step (max +50%). */
+function points(ms, streak) {
+	const base = Math.round(1000 * (1 - 0.5 * Math.min(1, ms / (Q_TIME * 1000))));
+	return Math.round(base * (1 + 0.1 * Math.min(5, streak - 1)));
+}
+
+/** Entry point for every chat message (TikTok/YouTube connectors call this). */
+window.chatMessage = (user, text) => {
+	const now = performance.now();
+	const m = state.members.get(user) || assign(user, now);
+	m.lastSeen = now;
+	const q = state.q;
+	if (state.phase !== 'race' || !q || q.closed) return;
+	const n = parseInt(String(text).replace(/[^\d-]/g, ''), 10);
+	if (Number.isNaN(n) || q.answered.has(user)) return;
+	q.answered.add(user);
+	if (n !== q.answer) { m.streak = 0; return; }
+	const car = state.cars.find((c) => c.team === m.team);
+	const ms = now - q.start, first = !q.solvedBy;
+	m.streak++;
+	const pts = points(ms, m.streak) + (first ? FIRST_BONUS : 0);
+	m.points += pts; m.best = Math.min(m.best, ms);
+	car.points += pts; car.lastName = user; car.lastPts = pts; car.lastAt = now;
+	car.burst += (pts / 1000) * LAP_PER_1000 * L;
+	car.burstLeft = Math.max(car.burstLeft, first ? 2.4 : 1.3);
+	q.correct.push({user, ms, pts, team: m.team});
+	const streak = m.streak >= 2 ? ` 🔥x${m.streak}` : '';
+	if (first) {
+		q.solvedBy = user;
+		director.cut(car, 3.2, 'ONBOARD · ' + car.team.name);
+		beep(880, 0.12); setTimeout(() => beep(1320, 0.2), 90);
+		$('solver').innerHTML = `⚡ FIRST! <span style="color:${m.team.css}">${esc(user)}</span> · ${(ms / 1000).toFixed(1)}s · +${pts}`;
+		$('solver').style.opacity = 1;
+		$('qbox').classList.add('solved');
+		feed(`⚡ <em style="color:${m.team.css}">${esc(user)}</em> +${pts}${streak}`);
+	} else {
+		beep(660, 0.05);
+		feed(`✓ <em style="color:${m.team.css}">${esc(user)}</em> +${pts}${streak}`);
+	}
+};
+
+function closeQuestion() {
+	const q = state.q; q.closed = true;
+	for (const [u, m] of state.members) if (!q.answered.has(u)) m.streak = 0; // sitting a question out breaks the streak
+	const top = q.correct.slice(0, 3).map((c, i) => `${['🥇', '🥈', '🥉'][i]} <span style="color:${c.team.css}">${esc(c.user)}</span> ${(c.ms / 1000).toFixed(1)}s`).join('  ');
+	$('question').textContent = `= ${q.answer}`;
+	$('qlabel').textContent = q.correct.length ? `${q.correct.length} CORRECT` : 'NOBODY GOT IT 😱';
+	$('solver').innerHTML = top; $('solver').style.opacity = top ? 1 : 0;
+	setTimeout(() => { $('solver').style.opacity = 0; if (state.phase === 'race') newQuestion(); }, 2200);
+}
+
+function feed(html) {
+	const el = $('feed'), d = document.createElement('div'); d.className = 'fi'; d.innerHTML = html; el.prepend(d);
+	[...el.children].forEach((c, i) => { c.style.top = i * 38 + 'px'; c.style.opacity = i > 4 ? 0 : 1 - i * 0.18; });
+	while (el.children.length > 6) el.lastChild.remove();
+}
+let audio;
+function beep(f, d) {
+	try {
+		audio = audio || new AudioContext();
+		const o = audio.createOscillator(), v = audio.createGain();
+		o.type = 'square'; o.frequency.value = f; v.gain.value = 0.05;
+		o.connect(v).connect(audio.destination); o.start(); v.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + d); o.stop(audio.currentTime + d);
+	} catch {}
+}
+
+// ---------- timing tower ----------
+TEAMS.forEach((t) => {
+	const r = document.createElement('div'); r.className = 'trow'; r.id = 't-' + t.id;
+	r.innerHTML = `<div class="p"></div><div class="c" style="background:${t.css}"></div><div class="n">${t.short}</div><div class="g"></div>`;
+	$('tower').appendChild(r);
+});
+function renderTower() {
+	const order = [...state.cars].sort((a, b) => b.dist - a.dist), sizes = teamSizes(performance.now());
+	const speed = L / BASE_LAP_S;
+	order.forEach((c, i) => {
+		const r = $('t-' + c.team.id);
+		r.style.top = i * 66 + 'px';
+		r.classList.toggle('lead', i === 0);
+		r.querySelector('.p').textContent = i + 1;
+		r.querySelector('.g').innerHTML = (i === 0 ? 'LEADER' : `+${((order[0].dist - c.dist) / speed).toFixed(1)}s`) + `<br>👥${sizes[c.team.id]} · ${c.points.toLocaleString('en')}`;
+	});
+	const lap = Math.min(LAPS, Math.floor(order[0].dist / L) + 1);
+	$('lap').innerHTML = lap === LAPS ? '<b>FINAL</b> LAP' : `LAP <b>${lap}</b>/${LAPS}`;
+}
+
+// ---------- TV director: chase / trackside / helicopter; cuts to whoever answers first ----------
+const TV_SPOTS = [0.08, 0.2, 0.33, 0.47, 0.6, 0.74, 0.88].map((u) => { const {p, n} = at(u * L); return p.clone().add(n.multiplyScalar(ROAD_W / 2 + 12)).setY(4); });
+const director = {
+	mode: 'chase', target: null, until: 0, label: '', look: null, snap: true,
+	cut(car, seconds, label) { this.mode = 'chase'; this.target = car; this.until = performance.now() + seconds * 1000; this.label = label; this.snap = true; },
+	pick(now) {
+		const order = [...state.cars].sort((a, b) => b.dist - a.dist);
+		const r = Math.random();
+		if (r < 0.4) this.cut(order[0], 6, 'LEADER · ' + order[0].team.name);
+		else if (r < 0.65) this.cut(order[1 + Math.floor(Math.random() * 3)], 5, 'BATTLE');
+		else if (r < 0.85) Object.assign(this, {mode: 'tv', target: order[0], until: now + 5000, label: 'TRACKSIDE', snap: true});
+		else Object.assign(this, {mode: 'heli', target: order[0], until: now + 5000, label: 'HELI CAM', snap: true});
+	},
+	update(now, dt) {
+		if (now > this.until || !this.target) this.pick(now);
+		const c = at(this.target.dist);
+		const pos = c.p.clone().add(c.n.clone().multiplyScalar(this.target.lane));
+		let want, look;
+		if (this.mode === 'chase') {
+			want = pos.clone().add(c.t.clone().multiplyScalar(-11)).setY(4.2);
+			look = pos.clone().add(c.t.clone().multiplyScalar(12)).setY(1.2);
+		} else if (this.mode === 'tv') {
+			want = TV_SPOTS.reduce((a, b) => (a.distanceTo(pos) < b.distanceTo(pos) ? a : b)).clone();
+			look = pos.clone().setY(0.8);
+		} else {
+			want = pos.clone().add(c.t.clone().multiplyScalar(-30)).add(c.n.clone().multiplyScalar(18)).setY(46);
+			look = pos.clone().add(c.t.clone().multiplyScalar(20));
+		}
+		const k = this.snap ? 1 : 1 - Math.exp(-dt * (this.mode === 'tv' ? 20 : 6));
+		camera.position.lerp(want, k);
+		this.look = this.snap || !this.look ? look : this.look.lerp(look, k);
+		camera.lookAt(this.look);
+		this.snap = false;
+		const boost = this.target.burstLeft > 0 && this.mode === 'chase';
+		camera.fov += ((boost ? 74 : 62) - camera.fov) * Math.min(1, dt * 4); camera.updateProjectionMatrix();
+		$('camtag').textContent = '● ' + this.label;
+		sun.position.copy(pos).add(new THREE.Vector3(60, 140, 40)); sun.target.position.copy(pos);
+	},
+};
+
+// ---------- race flow ----------
+function startLights() {
+	state.phase = 'lights';
+	state.race++;
+	state.cars.forEach((c) => Object.assign(c, {dist: 0, v: 0, burst: 0, burstLeft: 0, points: 0, lastAt: -1e9}));
+	for (const m of state.members.values()) Object.assign(m, {points: 0, streak: 0, best: Infinity});
+	state.q = null;
+	$('question').textContent = 'READY'; $('qlabel').textContent = 'COMMENT TO JOIN A TEAM';
+	director.cut(state.cars[2], 6, 'GRID');
+	const box = $('lights'); box.innerHTML = '<div class="light"><i></i><i></i></div>'.repeat(5); box.classList.add('show');
+	[...box.children].forEach((el, i) => setTimeout(() => { el.classList.add('on'); beep(440, 0.18); }, 700 + i * 800));
+	setTimeout(() => {
+		box.classList.remove('show'); $('go').style.display = 'block'; beep(1046, 0.4);
+		setTimeout(() => ($('go').style.display = 'none'), 900);
+		state.phase = 'race'; newQuestion();
+	}, 700 + 5 * 800 + 400 + Math.random() * 600);
+}
+
+function finish(winner) {
+	state.phase = 'podium';
+	director.cut(winner, 14, 'WINNER · ' + winner.team.name);
+	const mine = [...state.members.entries()].filter(([, m]) => m.team === winner.team && m.points > 0).sort((a, b) => b[1].points - a[1].points).slice(0, 3);
+	const fastest = [...state.members.entries()].filter(([, m]) => m.best < Infinity).sort((a, b) => a[1].best - b[1].best)[0];
+	$('podium').innerHTML = `<div class="chk"></div><h2>RACE ${state.race} WINNER</h2><h1 style="color:${winner.team.css}">TEAM ${winner.team.name}</h1>
+		<div id="mvps">${mine.map(([u, m], i) => `<div class="mvp" style="border-color:${winner.team.css}"><span class="m">${['🥇', '🥈', '🥉'][i]}</span><span class="nm">${esc(u)}</span><span class="ct">${m.points.toLocaleString('en')}</span></div>`).join('')}
+		${fastest ? `<div class="mvp"><span class="m">⚡</span><span class="nm">${esc(fastest[0])} <small style="opacity:.7">fastest answer</small></span><span class="ct">${(fastest[1].best / 1000).toFixed(1)}s</span></div>` : ''}</div>
+		<div id="next">Next race in 12s · keep commenting to stay in your team</div><div class="chk"></div>`;
+	$('podium').classList.add('show');
+	[0, 150, 300].forEach((d) => setTimeout(() => beep(660 + d, 0.25), d));
+	setTimeout(() => { $('podium').classList.remove('show'); startLights(); }, 12000);
+}
+
+// ---------- main loop ----------
+let last = performance.now();
+function frame(now) {
+	const dt = Math.min(0.05, (now - last) / 1000); last = now;
+	const base = L / BASE_LAP_S;
+	if (state.phase === 'race' || state.phase === 'podium') {
+		const lead = Math.max(...state.cars.map((c) => c.dist));
+		for (const c of state.cars) {
+			const behind = Math.min(1, (lead - c.dist) / (0.25 * L)); // gentle catch-up keeps the field close
+			let v = state.phase === 'podium' ? base * 0.6 : base * (1 + 0.55 * behind);
+			if (c.burstLeft > 0) { const take = Math.min(c.burst, (c.burst / c.burstLeft) * dt); v += take / dt; c.burst -= take; c.burstLeft -= dt; }
+			c.v = v;
+			c.dist += v * dt;
+			if (state.phase === 'race' && c.dist >= LAPS * L) { finish(c); break; }
+		}
+		const q = state.q;
+		if (state.phase === 'race' && q && !q.closed) {
+			const left = 1 - (now - q.start) / (Q_TIME * 1000);
+			$('qtimer').style.width = Math.max(0, left) * 100 + '%';
+			if (left <= 0) closeQuestion();
+		}
+	}
+	for (const c of state.cars) {
+		const {p, t, n} = at(c.dist);
+		const m = c.mesh;
+		m.position.copy(p).add(n.clone().multiplyScalar(c.lane)).setY(0.02);
+		m.lookAt(m.position.clone().add(t));
+		for (const w of m.userData.wheels) w.rotation.x += (c.v * dt) / 0.42;
+		const boost = Math.max(0, Math.min(1, c.burstLeft));
+		m.userData.flame.material.opacity = boost * (0.6 + 0.4 * Math.random());
+		m.userData.flame.scale.set(1, 0.7 + boost * 0.8 + Math.random() * 0.3, 1);
+		m.userData.glow.intensity = boost * 12;
+		const show = now - c.lastAt < 2600;
+		c.tag.visible = show;
+		if (show) {
+			const key = c.lastName + c.lastPts;
+			if (c.tag.userData.key !== key) { c.tag.userData.draw(`${c.lastName.slice(0, 14)} +${c.lastPts}`, c.team.css); c.tag.userData.key = key; }
+			c.tag.position.copy(m.position).setY(2.6);
+		}
+	}
+	director.update(now, dt);
+	renderTower();
+	renderer.render(scene, camera);
+	requestAnimationFrame(frame);
+}
+
+function fit() { $('stage').style.transform = `translate(-50%, -50%) scale(${Math.min(innerWidth / 1080, innerHeight / 1920)})`; }
+addEventListener('resize', fit); fit();
+startLights();
+requestAnimationFrame(frame);
+
+// ---------- demo chat (?demo=0 turns it off) ----------
+if (params.get('demo') !== '0') {
+	const NAMES = ['mehmet_34', 'ayse.k', 'joao_br', 'kai99', 'siti.nur', 'lucas.fr', 'omar_10', 'zeynep', 'alex_racer', 'emre.gs', 'dewi_id', 'carlos7',
+		'mia.rose', 'burak_fb', 'yuki', 'ahmet06', 'nina', 'pedro_fc', 'elif.x', 'raj_99', 'tom.uk', 'selin', 'ivan', 'hana', 'kerem', 'luna.mx', 'bilal', 'ece_35'];
+	const CHAT = ['lets goooo', 'ZORE 🔥', 'stars!!', 'gogogo', '😂😂', 'faster', 'who is winning', 'turbo pls'];
+	const skill = Object.fromEntries(NAMES.map((n) => [n, 0.35 + Math.random() * 0.6]));
+	setInterval(() => {
+		const u = NAMES[Math.floor(Math.random() * NAMES.length)];
+		const q = state.q;
+		if (state.phase === 'race' && q && !q.closed && Math.random() < skill[u]) {
+			const ok = Math.random() < 0.85;
+			setTimeout(() => window.chatMessage(u, String(ok ? q.answer : q.answer + (Math.random() < 0.5 ? 1 : -1))), 400 + Math.random() * 6000 * (1.2 - skill[u]));
+		} else window.chatMessage(u, CHAT[Math.floor(Math.random() * CHAT.length)]);
+	}, 420);
+}
+</script>
+</body>
+</html>

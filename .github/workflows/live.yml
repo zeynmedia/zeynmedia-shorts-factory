@@ -1,0 +1,43 @@
+name: Live (Chat Decides)
+
+# Test runs only: a 24/7 stream belongs on a server, not on Actions (GitHub's usage policy)
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "Yayın süresi (dakika, en fazla 330)"
+        default: "60"
+      round_seconds:
+        description: "Bir turun süresi (saniye)"
+        default: "300"
+
+concurrency:
+  group: live
+  cancel-in-progress: false
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    env:
+      LIVE_STREAM_KEY: ${{ secrets.LIVE_STREAM_KEY }}
+      LIVE_YT_CLIENT_ID: ${{ secrets.LIVE_YT_CLIENT_ID || secrets.YT_CLIENT_ID }}
+      LIVE_YT_CLIENT_SECRET: ${{ secrets.LIVE_YT_CLIENT_SECRET || secrets.YT_CLIENT_SECRET }}
+      LIVE_YT_REFRESH_TOKEN: ${{ secrets.LIVE_YT_REFRESH_TOKEN || secrets.YT_REFRESH_TOKEN }}
+      LIVE_MINUTES: ${{ inputs.minutes }}
+      LIVE_ROUND_S: ${{ inputs.round_seconds }}
+      DISPLAY: ":99"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: FedericoCarboni/setup-ffmpeg@v3
+      - name: Install Chromium
+        run: pip install playwright==1.49.1 && python -m playwright install --with-deps chromium
+      - name: Stream
+        run: |
+          cp -r v2/public/assets live/assets
+          Xvfb :99 -screen 0 1080x1920x24 -nolisten tcp &
+          sleep 2
+          python live/stream.py

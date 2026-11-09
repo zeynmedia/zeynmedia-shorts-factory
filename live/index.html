@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chat Decides the GOAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,800;0,900;1,900&display=block" rel="stylesheet">
+<style>
+	:root { --w: 1080px; --h: 1920px; }
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	html, body { width: var(--w); height: var(--h); overflow: hidden; background: #0a1550; font-family: Montserrat, sans-serif; color: #fff; }
+	#stage { position: relative; width: var(--w); height: var(--h); overflow: hidden;
+		background: radial-gradient(120% 70% at 50% 0%, #2f62ff 0%, #1638c9 38%, #0b1d7a 75%, #07114a 100%); }
+	.watermark { position: absolute; left: -40px; font: italic 900 190px/1 Montserrat; color: rgba(255,255,255,0.05); white-space: nowrap; letter-spacing: 4px; }
+	.live { position: absolute; top: 120px; left: 50%; transform: translateX(-50%); display: flex; gap: 14px; align-items: center;
+		font: 900 34px Montserrat; letter-spacing: 3px; padding: 10px 26px; border-radius: 999px; background: rgba(0,0,0,0.35); }
+	.live i { width: 22px; height: 22px; border-radius: 50%; background: #ff2d2d; box-shadow: 0 0 18px #ff2d2d; animation: blink 1s infinite; }
+	@keyframes blink { 50% { opacity: 0.25; } }
+	h1 { position: absolute; top: 205px; width: 100%; text-align: center; font: 900 84px/1 Montserrat; text-transform: uppercase;
+		filter: drop-shadow(0 0 18px rgba(130,170,255,0.7)); }
+	.sub { position: absolute; top: 305px; width: 100%; text-align: center; }
+	.sub span { display: inline-block; font: 900 38px Montserrat; letter-spacing: 4px; color: #1a1300; padding: 10px 30px 6px; border-radius: 18px;
+		background: linear-gradient(180deg, #ffe45c, #ffb800); transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+	.timer { position: absolute; top: 400px; width: 100%; text-align: center; font: 400 64px 'Bebas Neue'; letter-spacing: 3px; opacity: 0.9; }
+	#rows { position: absolute; top: 500px; left: 0; right: 0; height: 940px; }
+	.row { position: absolute; left: 0; right: 0; height: 140px; transition: transform 0.55s cubic-bezier(.2,.8,.2,1); }
+	.flag { position: absolute; left: 40px; top: 44px; width: 72px; height: 54px; border-radius: 10px; overflow: hidden; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.35); }
+	.flag img { width: 100%; height: 100%; object-fit: cover; }
+	.num { position: absolute; left: 128px; top: 14px; width: 40px; text-align: center; font: 400 44px 'Bebas Neue'; opacity: 0.6; }
+	.bar { position: absolute; left: 170px; top: 18px; height: 104px; min-width: 120px; border-radius: 6px; background: #fff;
+		display: flex; align-items: center; justify-content: center; transition: width 0.5s cubic-bezier(.2,.8,.2,1);
+		box-shadow: 0 10px 24px rgba(0,0,0,0.35); }
+	.bar b { font: 400 76px/1 'Bebas Neue'; color: #1b3ccf; padding-top: 6px; }
+	.bar .flash { position: absolute; inset: 0; background: #fff; opacity: 0; mix-blend-mode: screen; transition: opacity 0.4s; }
+	.tag { position: absolute; top: 18px; height: 104px; width: 44px; background: #1b2c8f; display: flex; align-items: center; justify-content: center; }
+	.tag span { writing-mode: vertical-rl; font: 400 30px 'Bebas Neue'; letter-spacing: 2px; }
+	.face { position: absolute; top: 0; width: 140px; height: 140px; border-radius: 50%; overflow: hidden; border: 5px solid #fff;
+		background: radial-gradient(circle at 40% 35%, #9fc0ff, #3557e8); box-shadow: 0 8px 22px rgba(0,0,0,0.4); transition: transform 0.25s; }
+	.face img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+	.crown { position: absolute; top: -52px; width: 70px; height: 52px; opacity: 0; transition: opacity 0.4s; }
+	.row.lead .crown { opacity: 1; }
+	.row.pop .face { transform: scale(1.18); }
+	.row.pop .bar .flash { opacity: 0.7; transition: none; }
+	.cta { position: absolute; top: 1450px; width: 100%; text-align: center; font: 900 44px Montserrat; text-transform: uppercase; }
+	.cta small { display: block; font: 800 30px Montserrat; opacity: 0.85; margin-top: 10px; letter-spacing: 1px; }
+	.cta.pulse { animation: pulse 1.6s infinite; }
+	@keyframes pulse { 50% { transform: scale(1.06); } }
+	#feed { position: absolute; left: 40px; right: 40px; top: 1580px; height: 150px; overflow: hidden; }
+	.vote { position: absolute; left: 0; right: 0; height: 46px; font: 800 30px Montserrat; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+		animation: in 0.35s ease-out; transition: transform 0.35s, opacity 0.35s; }
+	.vote em { font-style: normal; color: #ffd84a; }
+	@keyframes in { from { opacity: 0; transform: translateX(-60px); } }
+	.wins { position: absolute; top: 1760px; width: 100%; text-align: center; font: 800 28px Montserrat; opacity: 0.85; }
+	#winner { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 30px;
+		background: radial-gradient(circle, rgba(255,210,60,0.35), rgba(5,10,50,0.92) 60%); }
+	#winner.show { display: flex; animation: in 0.4s ease-out; }
+	#winner .wface { width: 420px; height: 420px; border-radius: 50%; overflow: hidden; border: 10px solid #ffd84a; box-shadow: 0 0 80px 20px rgba(255,210,60,0.6); }
+	#winner .wface img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+	#winner h2 { font: 900 110px/1 Montserrat; text-transform: uppercase; }
+	#winner p { font: 900 46px Montserrat; color: #ffd84a; letter-spacing: 3px; }
+</style>
+</head>
+<body>
+<div id="stage">
+	<div class="watermark" style="top:30px">ZEYN MEDYA ZEYN MEDYA</div>
+	<div class="watermark" style="top:1730px">ZEYN MEDYA ZEYN MEDYA</div>
+	<div class="live"><i></i> LIVE</div>
+	<h1>Who is the GOAT?</h1>
+	<div class="sub"><span>CHAT DECIDES</span></div>
+	<div class="timer" id="timer">ROUND 1 · 5:00</div>
+	<div id="rows"></div>
+	<div class="cta pulse" id="cta">Type a name in chat 👇<small>Messi · Ronaldo · Neymar · Mbappé · R9 · Pelé</small></div>
+	<div id="feed"></div>
+	<div class="wins" id="wins"></div>
+	<div id="winner"><div class="wface"><img id="wimg" alt=""></div><h2 id="wname"></h2><p id="wsub"></p></div>
+</div>
+<script>
+	// Candidates and the words that count as a vote for them (lowercase, matched as whole words or numbers 1-6)
+	const PLAYERS = [
+		{id: 'messi', name: 'Messi', img: 'assets/players/lionel-messi.png', flag: 'assets/flags/ar.png', words: ['messi', 'leo', 'lm10', '1']},
+		{id: 'ronaldo', name: 'Ronaldo', img: 'assets/players/cristiano-ronaldo.png', flag: 'assets/flags/pt.png', words: ['ronaldo', 'cr7', 'cristiano', 'siu', 'siuu', 'siuuu', '2']},
+		{id: 'neymar', name: 'Neymar', img: 'assets/players/neymar.png', flag: 'assets/flags/br.png', words: ['neymar', 'ney', 'njr', '3']},
+		{id: 'mbappe', name: 'Mbappé', img: 'assets/players/kylian-mbappe.png', flag: 'assets/flags/fr.png', words: ['mbappe', 'mbappé', 'kylian', 'km', '4']},
+		{id: 'r9', name: 'R9', img: 'assets/players/ronaldo-nazario.jpg', flag: 'assets/flags/br.png', words: ['r9', 'nazario', 'nazário', 'fenomeno', 'fenômeno', '5']},
+		{id: 'pele', name: 'Pelé', img: 'assets/players/pele.jpg', flag: 'assets/flags/br.png', words: ['pele', 'pelé', '6']},
+	];
+	const params = new URLSearchParams(location.search);
+	const ROUND_S = Number(params.get('round') || 300);
+	const WIN_S = 12;
+	const MAX_VOTES_PER_USER = 3; // per round, so one fast typer can't decide it alone
+
+	const crownSvg = '<svg viewBox="0 0 70 52"><path d="M5 46 L10 12 L24 28 L35 4 L46 28 L60 12 L65 46 Z" fill="#ffd84a" stroke="#fff" stroke-width="3"/></svg>';
+	const rowsEl = document.getElementById('rows');
+	const state = {round: 1, votes: {}, byUser: {}, roundWins: {}, roundEnds: Date.now() + ROUND_S * 1000, showingWinner: false, lastVoteAt: 0};
+	PLAYERS.forEach((p, i) => {
+		state.votes[p.id] = 0;
+		state.roundWins[p.id] = 0;
+		const el = document.createElement('div');
+		el.className = 'row';
+		el.id = 'row-' + p.id;
+		el.innerHTML = `<div class="flag"><img src="${p.flag}"></div><div class="num">${i + 1}</div>
+			<div class="bar"><b>0</b><div class="flash"></div></div><div class="tag"><span>${p.name.toUpperCase()}</span></div>
+			<div class="face"><img src="${p.img}"></div><div class="crown">${crownSvg}</div>`;
+		rowsEl.appendChild(el);
+	});
+
+	const MIN_W = 120, MAX_W = 600;
+	function render() {
+		const order = [...PLAYERS].sort((a, b) => state.votes[b.id] - state.votes[a.id] || PLAYERS.indexOf(a) - PLAYERS.indexOf(b));
+		const top = Math.max(1, ...Object.values(state.votes));
+		order.forEach((p, rank) => {
+			const el = document.getElementById('row-' + p.id);
+			const w = MIN_W + (MAX_W - MIN_W) * (state.votes[p.id] / top);
+			el.style.transform = `translateY(${rank * 155}px)`;
+			el.querySelector('.bar').style.width = w + 'px';
+			el.querySelector('.bar b').textContent = state.votes[p.id];
+			el.querySelector('.tag').style.left = 170 + w + 'px';
+			el.querySelector('.face').style.left = 170 + w + 44 + 'px';
+			el.querySelector('.crown').style.left = 170 + w + 44 + 35 + 'px';
+			el.classList.toggle('lead', rank === 0 && state.votes[p.id] > 0);
+		});
+		const wins = PLAYERS.filter((p) => state.roundWins[p.id]).map((p) => `${p.name} ${state.roundWins[p.id]}`);
+		document.getElementById('wins').textContent = wins.length ? '🏆 Rounds won: ' + wins.join(' · ') : '';
+	}
+
+	const feed = document.getElementById('feed');
+	function pushFeed(user, player) {
+		const v = document.createElement('div');
+		v.className = 'vote';
+		v.innerHTML = `${escapeHtml(user)} voted <em>${player.name.toUpperCase()}</em>`;
+		feed.prepend(v);
+		[...feed.children].forEach((c, i) => { c.style.transform = `translateY(${i * 48}px)`; c.style.opacity = i > 2 ? 0 : 1 - i * 0.25; });
+		while (feed.children.length > 4) feed.lastChild.remove();
+	}
+	const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
+
+	/** Called by the streamer for every chat message: returns the player id it counted for, or null. */
+	window.chatMessage = (user, text) => {
+		if (state.showingWinner) return null;
+		const words = String(text).toLowerCase().split(/[^a-z0-9àâçéèêëîïôûùüÿñæœá]+/i).filter(Boolean);
+		const p = PLAYERS.find((pl) => pl.words.some((w) => words.includes(w)));
+		if (!p) return null;
+		const used = state.byUser[user] || 0;
+		if (used >= MAX_VOTES_PER_USER) return null;
+		state.byUser[user] = used + 1;
+		state.votes[p.id] += 1;
+		state.lastVoteAt = Date.now();
+		const row = document.getElementById('row-' + p.id);
+		row.classList.add('pop');
+		setTimeout(() => row.classList.remove('pop'), 180);
+		pushFeed(user, p);
+		render();
+		return p.id;
+	};
+
+	function endRound() {
+		const total = Object.values(state.votes).reduce((a, b) => a + b, 0);
+		const best = [...PLAYERS].sort((a, b) => state.votes[b.id] - state.votes[a.id])[0];
+		if (total > 0) {
+			state.roundWins[best.id] += 1;
+			state.showingWinner = true;
+			document.getElementById('wimg').src = best.img;
+			document.getElementById('wname').textContent = best.name;
+			document.getElementById('wsub').textContent = `WINS ROUND ${state.round} · ${state.votes[best.id]} VOTES`;
+			document.getElementById('winner').classList.add('show');
+		}
+		setTimeout(() => {
+			document.getElementById('winner').classList.remove('show');
+			state.showingWinner = false;
+			state.round += 1;
+			PLAYERS.forEach((p) => (state.votes[p.id] = 0));
+			state.byUser = {};
+			state.roundEnds = Date.now() + ROUND_S * 1000;
+			render();
+		}, total > 0 ? WIN_S * 1000 : 0);
+	}
+
+	setInterval(() => {
+		const left = Math.max(0, Math.ceil((state.roundEnds - Date.now()) / 1000));
+		document.getElementById('timer').textContent = `ROUND ${state.round} · ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+		document.getElementById('cta').classList.toggle('pulse', Date.now() - state.lastVoteAt > 4000);
+		if (left === 0 && !state.showingWinner) endRound();
+	}, 250);
+	render();
+
+	// Local preview only: ?demo=1 fakes chat so the layout can be checked without a stream
+	if (params.get('demo')) {
+		const names = ['alex', 'mehmet', 'joão', 'kai', 'siti', 'lucas', 'ayşe', 'omar'];
+		setInterval(() => window.chatMessage(names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 99),
+			PLAYERS[Math.floor(Math.random() * Math.random() * PLAYERS.length)].words[0]), 700);
+	}
+</script>
+</body>
+</html>

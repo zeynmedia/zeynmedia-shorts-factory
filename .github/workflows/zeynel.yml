@@ -110,7 +110,9 @@ jobs:
         env:
           GATED: ${{ github.event_name == 'schedule' || inputs.via_cron }}
         run: |
-          # Both GitHub's schedule and the Cloudflare cron can queue a run; re-check after the queue so a slot is filled once
+          # Both GitHub's schedule and the Cloudflare cron can queue a run; re-check after the queue so a slot is filled once.
+          # The checkout is the commit that triggered the run, so pull the latest history first (else both runs pick the same topic)
+          git fetch -q origin main && git checkout origin/main -- data/
           if [ "$GATED" = "true" ]; then
             python3 factory/schedule_gate.py | tee gate.txt
             grep -q "ÇALIŞ" gate.txt || { echo "Bu saatin videosu zaten yüklendi"; exit 0; }

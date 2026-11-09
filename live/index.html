@@ -16,7 +16,7 @@
 		font: 900 34px Montserrat; letter-spacing: 3px; padding: 10px 26px; border-radius: 999px; background: rgba(0,0,0,0.35); }
 	.live i { width: 22px; height: 22px; border-radius: 50%; background: #ff2d2d; box-shadow: 0 0 18px #ff2d2d; animation: blink 1s infinite; }
 	@keyframes blink { 50% { opacity: 0.25; } }
-	h1 { position: absolute; top: 205px; width: 100%; text-align: center; font: 900 84px/1 Montserrat; text-transform: uppercase;
+	h1 { position: absolute; top: 205px; width: 100%; text-align: center; font: 900 84px/1 Montserrat; text-transform: uppercase; white-space: nowrap;
 		filter: drop-shadow(0 0 18px rgba(130,170,255,0.7)); }
 	.sub { position: absolute; top: 305px; width: 100%; text-align: center; }
 	.sub span { display: inline-block; font: 900 38px Montserrat; letter-spacing: 4px; color: #1a1300; padding: 10px 30px 6px; border-radius: 18px;
@@ -47,7 +47,7 @@
 	@keyframes pulse { 50% { transform: scale(1.06); } }
 	#feed { position: absolute; left: 40px; right: 40px; top: 1580px; height: 150px; overflow: hidden; }
 	.vote { position: absolute; left: 0; right: 0; height: 46px; font: 800 30px Montserrat; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-		animation: in 0.35s ease-out; transition: transform 0.35s, opacity 0.35s; }
+		animation: in 0.35s ease-out; transition: top 0.35s, opacity 0.35s; }
 	.vote em { font-style: normal; color: #ffd84a; }
 	@keyframes in { from { opacity: 0; transform: translateX(-60px); } }
 	.wins { position: absolute; top: 1760px; width: 100%; text-align: center; font: 800 28px Montserrat; opacity: 0.85; }
@@ -58,6 +58,21 @@
 	#winner .wface img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 	#winner h2 { font: 900 110px/1 Montserrat; text-transform: uppercase; }
 	#winner p { font: 900 46px Montserrat; color: #ffd84a; letter-spacing: 3px; }
+	.face.logo { background: #fff; }
+	.face.logo img { object-fit: contain; padding: 14px; }
+	#picker { position: absolute; top: 500px; left: 60px; right: 60px; display: none; flex-direction: column; gap: 36px; }
+	#picker.show { display: flex; animation: in 0.4s ease-out; }
+	.card { position: relative; height: 250px; border-radius: 28px; background: rgba(255,255,255,0.1); border: 4px solid rgba(255,255,255,0.35);
+		display: flex; align-items: center; gap: 26px; padding: 0 30px; overflow: hidden; isolation: isolate; }
+	.card .letter { width: 120px; height: 120px; border-radius: 26px; flex: none; display: flex; align-items: center; justify-content: center;
+		font: 900 86px Montserrat; color: #1a1300; background: linear-gradient(180deg, #ffe45c, #ffb800); }
+	.card .info { flex: 1; min-width: 0; }
+	.card .name { font: 900 50px/1.05 Montserrat; text-transform: uppercase; }
+	.card .faces { display: flex; margin-top: 16px; }
+	.card .faces img { width: 74px; height: 74px; border-radius: 50%; border: 3px solid #fff; margin-right: -14px; object-fit: cover; object-position: top; background: #fff; }
+	.card .count { font: 400 90px 'Bebas Neue'; min-width: 110px; text-align: right; }
+	.card .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(255,216,74,0.22); transition: width 0.4s; z-index: -1; }
+	.card.lead { border-color: #ffd84a; box-shadow: 0 0 40px rgba(255,216,74,0.45); }
 </style>
 </head>
 <body>
@@ -65,129 +80,251 @@
 	<div class="watermark" style="top:30px">ZEYN MEDYA ZEYN MEDYA</div>
 	<div class="watermark" style="top:1730px">ZEYN MEDYA ZEYN MEDYA</div>
 	<div class="live"><i></i> LIVE</div>
-	<h1>Who is the GOAT?</h1>
-	<div class="sub"><span>CHAT DECIDES</span></div>
-	<div class="timer" id="timer">ROUND 1 · 5:00</div>
+	<h1 id="title">Who is the GOAT?</h1>
+	<div class="sub"><span id="subtitle">CHAT DECIDES</span></div>
+	<div class="timer" id="timer"></div>
 	<div id="rows"></div>
-	<div class="cta pulse" id="cta">Type a name in chat 👇<small>Messi · Ronaldo · Neymar · Mbappé · R9 · Pelé</small></div>
+	<div id="picker"></div>
+	<div class="cta pulse" id="cta"></div>
 	<div id="feed"></div>
 	<div class="wins" id="wins"></div>
 	<div id="winner"><div class="wface"><img id="wimg" alt=""></div><h2 id="wname"></h2><p id="wsub"></p></div>
 </div>
 <script>
-	// Candidates and the words that count as a vote for them (lowercase, matched as whole words or numbers 1-6)
-	const PLAYERS = [
-		{id: 'messi', name: 'Messi', img: 'assets/players/lionel-messi.png', flag: 'assets/flags/ar.png', words: ['messi', 'leo', 'lm10', '1']},
-		{id: 'ronaldo', name: 'Ronaldo', img: 'assets/players/cristiano-ronaldo.png', flag: 'assets/flags/pt.png', words: ['ronaldo', 'cr7', 'cristiano', 'siu', 'siuu', 'siuuu', '2']},
-		{id: 'neymar', name: 'Neymar', img: 'assets/players/neymar.png', flag: 'assets/flags/br.png', words: ['neymar', 'ney', 'njr', '3']},
-		{id: 'mbappe', name: 'Mbappé', img: 'assets/players/kylian-mbappe.png', flag: 'assets/flags/fr.png', words: ['mbappe', 'mbappé', 'kylian', 'km', '4']},
-		{id: 'r9', name: 'R9', img: 'assets/players/ronaldo-nazario.jpg', flag: 'assets/flags/br.png', words: ['r9', 'nazario', 'nazário', 'fenomeno', 'fenômeno', '5']},
-		{id: 'pele', name: 'Pelé', img: 'assets/players/pele.jpg', flag: 'assets/flags/br.png', words: ['pele', 'pelé', '6']},
+	const P = (f) => 'assets/players/' + f, T = (f) => 'assets/teams/' + f, F = (c) => 'assets/flags/' + c + '.png';
+	// Topics viewers can pick. Each option: the words that count as a vote (lowercase, whole words) plus its number.
+	const TOPICS = [
+		{id: 'football', name: 'Football GOAT', title: 'Who is the GOAT?', options: [
+			{id: 'messi', name: 'Messi', img: P('lionel-messi.png'), flag: F('ar'), words: ['messi', 'leo', 'lm10']},
+			{id: 'ronaldo', name: 'Ronaldo', img: P('cristiano-ronaldo.png'), flag: F('pt'), words: ['ronaldo', 'cr7', 'cristiano', 'siu', 'siuu', 'siuuu']},
+			{id: 'neymar', name: 'Neymar', img: P('neymar.png'), flag: F('br'), words: ['neymar', 'ney', 'njr']},
+			{id: 'mbappe', name: 'Mbappé', img: P('kylian-mbappe.png'), flag: F('fr'), words: ['mbappe', 'mbappé', 'kylian']},
+			{id: 'r9', name: 'R9', img: P('ronaldo-nazario.jpg'), flag: F('br'), words: ['r9', 'nazario', 'nazário', 'fenomeno', 'fenômeno']},
+			{id: 'pele', name: 'Pelé', img: P('pele.jpg'), flag: F('br'), words: ['pele', 'pelé']},
+		]},
+		{id: 'nba', name: 'NBA GOAT', title: 'Who is the NBA GOAT?', options: [
+			{id: 'jordan', name: 'Jordan', img: P('michael-jordan.png'), flag: F('us'), words: ['jordan', 'mj', 'michael']},
+			{id: 'lebron', name: 'LeBron', img: P('lebron-james.png'), flag: F('us'), words: ['lebron', 'bron', 'king', 'james']},
+			{id: 'kobe', name: 'Kobe', img: P('kobe-bryant.png'), flag: F('us'), words: ['kobe', 'mamba', 'bryant']},
+			{id: 'kareem', name: 'Kareem', img: P('kareem-abdul-jabbar.png'), flag: F('us'), words: ['kareem', 'jabbar']},
+			{id: 'russell', name: 'Russell', img: P('bill-russell.png'), flag: F('us'), words: ['russell', 'bill']},
+		]},
+		{id: 'f1', name: 'F1 GOAT', title: 'Who is the F1 GOAT?', options: [
+			{id: 'hamilton', name: 'Hamilton', img: P('lewis-hamilton.png'), flag: F('gb'), words: ['hamilton', 'lewis', 'ham', 'lh44']},
+			{id: 'schumacher', name: 'Schumacher', img: P('michael-schumacher.png'), flag: F('de'), words: ['schumacher', 'schumi', 'msc']},
+			{id: 'verstappen', name: 'Verstappen', img: P('max-verstappen.png'), flag: F('nl'), words: ['verstappen', 'max', 'mv1']},
+			{id: 'vettel', name: 'Vettel', img: P('sebastian-vettel.png'), flag: F('de'), words: ['vettel', 'seb']},
+			{id: 'alonso', name: 'Alonso', img: P('fernando-alonso.png'), flag: F('es'), words: ['alonso', 'fernando', 'nano']},
+		]},
+		{id: 'tennis', name: 'Tennis GOAT', title: 'Who is the Tennis GOAT?', options: [
+			{id: 'federer', name: 'Federer', img: P('roger-federer.png'), flag: F('ch'), words: ['federer', 'roger', 'fed']},
+			{id: 'nadal', name: 'Nadal', img: P('rafael-nadal.png'), flag: F('es'), words: ['nadal', 'rafa']},
+			{id: 'djokovic', name: 'Djokovic', img: P('novak-djokovic.png'), flag: F('rs'), words: ['djokovic', 'novak', 'nole', 'djoker']},
+		]},
+		{id: 'clubs', name: 'Best Club Ever', title: 'Best club in history?', options: [
+			{id: 'real', name: 'Real Madrid', img: T('real-madrid.png'), flag: F('es'), logo: true, words: ['real', 'madrid', 'rma', 'halamadrid']},
+			{id: 'barca', name: 'Barcelona', img: T('barcelona.png'), flag: F('es'), logo: true, words: ['barca', 'barça', 'barcelona', 'fcb', 'visca']},
+			{id: 'manutd', name: 'Man United', img: T('manchester-united.png'), flag: F('gb-eng'), logo: true, words: ['united', 'manutd', 'mufc', 'utd']},
+			{id: 'bayern', name: 'Bayern', img: T('bayern-munich.png'), flag: F('de'), logo: true, words: ['bayern', 'fcbayern', 'munich']},
+			{id: 'liverpool', name: 'Liverpool', img: T('liverpool.png'), flag: F('gb-eng'), logo: true, words: ['liverpool', 'lfc', 'ynwa']},
+			{id: 'milan', name: 'AC Milan', img: T('ac-milan.png'), flag: F('it'), logo: true, words: ['milan', 'acmilan', 'rossoneri']},
+		]},
+		{id: 'coaches', name: 'Best Coach', title: 'Best coach ever?', options: [
+			{id: 'pep', name: 'Guardiola', img: P('pep-guardiola.png'), flag: F('es'), words: ['pep', 'guardiola']},
+			{id: 'mourinho', name: 'Mourinho', img: P('jose-mourinho.png'), flag: F('pt'), words: ['mourinho', 'jose', 'mou', 'special']},
+			{id: 'ancelotti', name: 'Ancelotti', img: P('carlo-ancelotti.png'), flag: F('it'), words: ['ancelotti', 'carlo', 'carletto']},
+			{id: 'zidane', name: 'Zidane', img: P('zinedine-zidane.png'), flag: F('fr'), words: ['zidane', 'zizou', 'zz']},
+		]},
+		{id: 'derby', name: 'GS vs FB', title: 'Galatasaray or Fenerbahçe?', options: [
+			{id: 'gs', name: 'Galatasaray', img: T('galatasaray.png'), flag: F('tr'), logo: true, words: ['galatasaray', 'gs', 'cimbom', 'aslan']},
+			{id: 'fb', name: 'Fenerbahçe', img: T('fenerbahce.png'), flag: F('tr'), logo: true, words: ['fenerbahce', 'fenerbahçe', 'fb', 'fener', 'kanarya']},
+		]},
+		{id: 'nbateams', name: 'Best NBA Team', title: 'Best NBA team ever?', options: [
+			{id: 'lakers', name: 'Lakers', img: T('los-angeles-lakers.png'), flag: F('us'), logo: true, words: ['lakers', 'lal']},
+			{id: 'celtics', name: 'Celtics', img: T('boston-celtics.png'), flag: F('us'), logo: true, words: ['celtics', 'boston']},
+			{id: 'bulls', name: 'Bulls', img: T('chicago-bulls.png'), flag: F('us'), logo: true, words: ['bulls', 'chicago']},
+			{id: 'warriors', name: 'Warriors', img: T('golden-state-warriors.png'), flag: F('us'), logo: true, words: ['warriors', 'gsw', 'dubs']},
+			{id: 'spurs', name: 'Spurs', img: T('san-antonio-spurs.png'), flag: F('us'), logo: true, words: ['spurs', 'sas']},
+		]},
 	];
 	const params = new URLSearchParams(location.search);
 	const ROUND_S = Number(params.get('round') || 300);
+	const PICK_S = Number(params.get('pick') || 30);
 	const WIN_S = 12;
 	const MAX_VOTES_PER_USER = 3; // per round, so one fast typer can't decide it alone
-
+	const ROW = 155;
 	const crownSvg = '<svg viewBox="0 0 70 52"><path d="M5 46 L10 12 L24 28 L35 4 L46 28 L60 12 L65 46 Z" fill="#ffd84a" stroke="#fff" stroke-width="3"/></svg>';
-	const rowsEl = document.getElementById('rows');
-	const state = {round: 1, votes: {}, byUser: {}, roundWins: {}, roundEnds: Date.now() + ROUND_S * 1000, showingWinner: false, lastVoteAt: 0};
-	PLAYERS.forEach((p, i) => {
-		state.votes[p.id] = 0;
-		state.roundWins[p.id] = 0;
-		const el = document.createElement('div');
-		el.className = 'row';
-		el.id = 'row-' + p.id;
-		el.innerHTML = `<div class="flag"><img src="${p.flag}"></div><div class="num">${i + 1}</div>
-			<div class="bar"><b>0</b><div class="flash"></div></div><div class="tag"><span>${p.name.toUpperCase()}</span></div>
-			<div class="face"><img src="${p.img}"></div><div class="crown">${crownSvg}</div>`;
-		rowsEl.appendChild(el);
-	});
+	const $ = (id) => document.getElementById(id);
+	const setTitle = (text) => { $('title').textContent = text; $('title').style.fontSize = Math.min(84, Math.floor(1650 / text.length)) + 'px'; };
+	const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
+	const wordsOf = (text) => String(text).toLowerCase().split(/[^a-z0-9àâçéèêëîïôûùüÿñæœáşğıö]+/i).filter(Boolean);
+
+	// phase: 'pick' (viewers choose the next topic) -> 'race' -> 'winner' -> 'pick' ...
+	const state = {phase: 'pick', round: 0, topic: null, choices: [], picks: {}, votes: {}, byUser: {}, endsAt: 0, lastVoteAt: 0, lastTopic: null, history: []};
+
+	function startPick() {
+		state.phase = 'pick';
+		const pool = TOPICS.filter((t) => t.id !== state.lastTopic).sort(() => Math.random() - 0.5);
+		state.choices = pool.slice(0, 3);
+		state.picks = {};
+		state.byUser = {};
+		state.endsAt = Date.now() + PICK_S * 1000;
+		$('rows').innerHTML = '';
+		setTitle('Next round?');
+		$('subtitle').textContent = 'CHAT PICKS THE TOPIC';
+		$('cta').innerHTML = 'Type A, B or C in chat 👇<small>Most votes in ' + PICK_S + ' seconds wins</small>';
+		$('picker').innerHTML = state.choices.map((t, i) => `<div class="card" id="card-${t.id}"><div class="fill"></div>
+			<div class="letter">${'ABC'[i]}</div><div class="info"><div class="name">${t.name}</div>
+			<div class="faces">${t.options.slice(0, 5).map((o) => `<img src="${o.img}" style="${o.logo ? 'object-fit:contain;padding:6px' : ''}">`).join('')}</div></div>
+			<div class="count">0</div></div>`).join('');
+		$('picker').classList.add('show');
+		renderPick();
+	}
+
+	function renderPick() {
+		const top = Math.max(1, ...state.choices.map((t) => state.picks[t.id] || 0));
+		const lead = [...state.choices].sort((a, b) => (state.picks[b.id] || 0) - (state.picks[a.id] || 0))[0];
+		state.choices.forEach((t) => {
+			const card = $('card-' + t.id);
+			const n = state.picks[t.id] || 0;
+			card.querySelector('.count').textContent = n;
+			card.querySelector('.fill').style.width = (100 * n) / top + '%';
+			card.classList.toggle('lead', n > 0 && t === lead);
+		});
+	}
+
+	function startRace(topic) {
+		state.phase = 'race';
+		state.round += 1;
+		state.topic = topic;
+		state.lastTopic = topic.id;
+		state.votes = {};
+		state.byUser = {};
+		state.endsAt = Date.now() + ROUND_S * 1000;
+		$('picker').classList.remove('show');
+		setTitle(topic.title);
+		$('subtitle').textContent = 'CHAT DECIDES';
+		$('cta').innerHTML = 'Type a name in chat 👇<small>' + topic.options.map((o, i) => `${i + 1} ${o.name}`).join(' · ') + '</small>';
+		const offset = ((6 - topic.options.length) * ROW) / 2; // fewer options sit in the middle
+		$('rows').innerHTML = '';
+		topic.options.forEach((o, i) => {
+			state.votes[o.id] = 0;
+			const el = document.createElement('div');
+			el.className = 'row';
+			el.id = 'row-' + o.id;
+			el.dataset.offset = offset;
+			el.innerHTML = `<div class="flag"><img src="${o.flag}"></div><div class="num">${i + 1}</div>
+				<div class="bar"><b>0</b><div class="flash"></div></div><div class="tag"><span>${o.name.toUpperCase()}</span></div>
+				<div class="face${o.logo ? ' logo' : ''}"><img src="${o.img}"></div><div class="crown">${crownSvg}</div>`;
+			$('rows').appendChild(el);
+		});
+		renderRace();
+	}
 
 	const MIN_W = 120, MAX_W = 600;
-	function render() {
-		const order = [...PLAYERS].sort((a, b) => state.votes[b.id] - state.votes[a.id] || PLAYERS.indexOf(a) - PLAYERS.indexOf(b));
+	function renderRace() {
+		const opts = state.topic.options;
+		const order = [...opts].sort((a, b) => state.votes[b.id] - state.votes[a.id] || opts.indexOf(a) - opts.indexOf(b));
 		const top = Math.max(1, ...Object.values(state.votes));
-		order.forEach((p, rank) => {
-			const el = document.getElementById('row-' + p.id);
-			const w = MIN_W + (MAX_W - MIN_W) * (state.votes[p.id] / top);
-			el.style.transform = `translateY(${rank * 155}px)`;
+		order.forEach((o, rank) => {
+			const el = $('row-' + o.id);
+			const w = MIN_W + (MAX_W - MIN_W) * (state.votes[o.id] / top);
+			el.style.transform = `translateY(${Number(el.dataset.offset) + rank * ROW}px)`;
 			el.querySelector('.bar').style.width = w + 'px';
-			el.querySelector('.bar b').textContent = state.votes[p.id];
+			el.querySelector('.bar b').textContent = state.votes[o.id];
 			el.querySelector('.tag').style.left = 170 + w + 'px';
 			el.querySelector('.face').style.left = 170 + w + 44 + 'px';
 			el.querySelector('.crown').style.left = 170 + w + 44 + 35 + 'px';
-			el.classList.toggle('lead', rank === 0 && state.votes[p.id] > 0);
+			el.classList.toggle('lead', rank === 0 && state.votes[o.id] > 0);
 		});
-		const wins = PLAYERS.filter((p) => state.roundWins[p.id]).map((p) => `${p.name} ${state.roundWins[p.id]}`);
-		document.getElementById('wins').textContent = wins.length ? '🏆 Rounds won: ' + wins.join(' · ') : '';
 	}
 
-	const feed = document.getElementById('feed');
-	function pushFeed(user, player) {
+	function renderHistory() {
+		$('wins').textContent = state.history.length ? '🏆 ' + state.history.slice(-3).map((h) => `${h.winner} (${h.topic})`).join(' · ') : '';
+	}
+
+	function pushFeed(user, what) {
 		const v = document.createElement('div');
 		v.className = 'vote';
-		v.innerHTML = `${escapeHtml(user)} voted <em>${player.name.toUpperCase()}</em>`;
-		feed.prepend(v);
-		[...feed.children].forEach((c, i) => { c.style.transform = `translateY(${i * 48}px)`; c.style.opacity = i > 2 ? 0 : 1 - i * 0.25; });
-		while (feed.children.length > 4) feed.lastChild.remove();
+		v.innerHTML = `${escapeHtml(user)} ${state.phase === 'pick' ? 'picked' : 'voted'} <em>${escapeHtml(what).toUpperCase()}</em>`;
+		$('feed').prepend(v);
+		[...$('feed').children].forEach((c, i) => { c.style.top = `${i * 48}px`; c.style.opacity = i > 2 ? 0 : 1 - i * 0.25; });
+		while ($('feed').children.length > 4) $('feed').lastChild.remove();
 	}
-	const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
 
-	/** Called by the streamer for every chat message: returns the player id it counted for, or null. */
+	/** Called by the streamer for every chat message: returns what it counted for, or null. */
 	window.chatMessage = (user, text) => {
-		if (state.showingWinner) return null;
-		const words = String(text).toLowerCase().split(/[^a-z0-9àâçéèêëîïôûùüÿñæœá]+/i).filter(Boolean);
-		const p = PLAYERS.find((pl) => pl.words.some((w) => words.includes(w)));
-		if (!p) return null;
+		if (state.phase === 'winner') return null;
+		const words = wordsOf(text);
 		const used = state.byUser[user] || 0;
 		if (used >= MAX_VOTES_PER_USER) return null;
+		if (state.phase === 'pick') {
+			const i = ['a', 'b', 'c'].findIndex((l) => words.includes(l));
+			const t = i >= 0 ? state.choices[i] : state.choices.find((c) => words.some((w) => w === c.id || c.name.toLowerCase().split(' ').includes(w)));
+			if (!t) return null;
+			state.byUser[user] = used + 1;
+			state.picks[t.id] = (state.picks[t.id] || 0) + 1;
+			state.lastVoteAt = Date.now();
+			pushFeed(user, t.name);
+			renderPick();
+			return t.id;
+		}
+		const opts = state.topic.options;
+		const o = opts.find((op, i) => words.includes(String(i + 1)) || op.words.some((w) => words.includes(w)));
+		if (!o) return null;
 		state.byUser[user] = used + 1;
-		state.votes[p.id] += 1;
+		state.votes[o.id] += 1;
 		state.lastVoteAt = Date.now();
-		const row = document.getElementById('row-' + p.id);
+		const row = $('row-' + o.id);
 		row.classList.add('pop');
 		setTimeout(() => row.classList.remove('pop'), 180);
-		pushFeed(user, p);
-		render();
-		return p.id;
+		pushFeed(user, o.name);
+		renderRace();
+		return o.id;
 	};
 
-	function endRound() {
+	function endPick() {
+		const max = Math.max(0, ...state.choices.map((t) => state.picks[t.id] || 0));
+		const top = state.choices.filter((t) => (state.picks[t.id] || 0) === max);
+		startRace(top[Math.floor(Math.random() * top.length)]); // no votes: a random one of the three
+	}
+
+	function endRace() {
+		const opts = state.topic.options;
 		const total = Object.values(state.votes).reduce((a, b) => a + b, 0);
-		const best = [...PLAYERS].sort((a, b) => state.votes[b.id] - state.votes[a.id])[0];
-		if (total > 0) {
-			state.roundWins[best.id] += 1;
-			state.showingWinner = true;
-			document.getElementById('wimg').src = best.img;
-			document.getElementById('wname').textContent = best.name;
-			document.getElementById('wsub').textContent = `WINS ROUND ${state.round} · ${state.votes[best.id]} VOTES`;
-			document.getElementById('winner').classList.add('show');
-		}
-		setTimeout(() => {
-			document.getElementById('winner').classList.remove('show');
-			state.showingWinner = false;
-			state.round += 1;
-			PLAYERS.forEach((p) => (state.votes[p.id] = 0));
-			state.byUser = {};
-			state.roundEnds = Date.now() + ROUND_S * 1000;
-			render();
-		}, total > 0 ? WIN_S * 1000 : 0);
+		const best = [...opts].sort((a, b) => state.votes[b.id] - state.votes[a.id])[0];
+		if (!total) return startPick();
+		state.phase = 'winner';
+		state.history.push({winner: best.name, topic: state.topic.name});
+		renderHistory();
+		$('wimg').src = best.img;
+		$('wimg').style.objectFit = best.logo ? 'contain' : 'cover';
+		$('wimg').parentElement.style.background = best.logo ? '#fff' : '';
+		$('wname').textContent = best.name;
+		$('wsub').textContent = `${state.topic.name.toUpperCase()} · ${state.votes[best.id]} VOTES`;
+		$('winner').classList.add('show');
+		setTimeout(() => { $('winner').classList.remove('show'); startPick(); }, WIN_S * 1000);
 	}
 
 	setInterval(() => {
-		const left = Math.max(0, Math.ceil((state.roundEnds - Date.now()) / 1000));
-		document.getElementById('timer').textContent = `ROUND ${state.round} · ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
-		document.getElementById('cta').classList.toggle('pulse', Date.now() - state.lastVoteAt > 4000);
-		if (left === 0 && !state.showingWinner) endRound();
+		const left = Math.max(0, Math.ceil((state.endsAt - Date.now()) / 1000));
+		const clock = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+		$('timer').textContent = state.phase === 'pick' ? `PICK THE TOPIC · ${clock}` : state.phase === 'race' ? `ROUND ${state.round} · ${clock}` : '';
+		$('cta').classList.toggle('pulse', Date.now() - state.lastVoteAt > 4000);
+		if (left === 0 && state.phase === 'pick') endPick();
+		else if (left === 0 && state.phase === 'race') endRace();
 	}, 250);
-	render();
+	startPick();
 
 	// Local preview only: ?demo=1 fakes chat so the layout can be checked without a stream
 	if (params.get('demo')) {
 		const names = ['alex', 'mehmet', 'joão', 'kai', 'siti', 'lucas', 'ayşe', 'omar'];
-		setInterval(() => window.chatMessage(names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 99),
-			PLAYERS[Math.floor(Math.random() * Math.random() * PLAYERS.length)].words[0]), 700);
+		setInterval(() => {
+			const user = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 99);
+			const text = state.phase === 'pick' ? 'abc'[Math.floor(Math.random() * 3)]
+				: state.topic.options[Math.floor(Math.random() * Math.random() * state.topic.options.length)].words[0];
+			window.chatMessage(user, text);
+		}, 600);
 	}
 </script>
 </body>

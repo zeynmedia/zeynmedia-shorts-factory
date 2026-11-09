@@ -1,0 +1,212 @@
+{
+  "youtube": {
+    "title": "Messi vs Ronaldo International Goals 🐐🔥",
+    "description": "Messi vs Ronaldo — International Goals, full careers (both retired from international football in 2026: Messi 126 goals in 208 caps, Ronaldo 146 in 234).\n\nSource: Wikipedia lists of international goals.\n\nMake your own viral Shorts free: https://studio.zeynelerek.com/templates/messi-ronaldo-international-goals\n\n#shorts #football #ronaldo #messi #barchartrace",
+    "tags": [
+      "messi",
+      "ronaldo",
+      "cr7",
+      "international goals",
+      "ronaldo retires",
+      "portugal",
+      "argentina",
+      "goat",
+      "shorts",
+      "sports stats",
+      "bar chart race",
+      "comparison"
+    ]
+  },
+  "props": {
+    "brand": "ZEYN MEDYA",
+    "durationSec": 18,
+    "sfx": true,
+    "showDeltas": true,
+    "valueFormat": "int",
+    "template": "diamond",
+    "title": "Messi vs Ronaldo",
+    "subtitle": "International Goals",
+    "stepIcon": "ball",
+    "hook": "BOTH RETIRED. WHO WON?",
+    "steps": [
+      {
+        "label": "2004",
+        "values": {
+          "mes": 0,
+          "ron": 7
+        }
+      },
+      {
+        "label": "2005",
+        "values": {
+          "mes": 0,
+          "ron": 2
+        }
+      },
+      {
+        "label": "2006",
+        "values": {
+          "mes": 2,
+          "ron": 6
+        }
+      },
+      {
+        "label": "2007",
+        "values": {
+          "mes": 6,
+          "ron": 5
+        }
+      },
+      {
+        "label": "2008",
+        "values": {
+          "mes": 2,
+          "ron": 1
+        }
+      },
+      {
+        "label": "2009",
+        "values": {
+          "mes": 3,
+          "ron": 1
+        }
+      },
+      {
+        "label": "2010",
+        "values": {
+          "mes": 2,
+          "ron": 3
+        }
+      },
+      {
+        "label": "2011",
+        "values": {
+          "mes": 4,
+          "ron": 7
+        }
+      },
+      {
+        "label": "2012",
+        "values": {
+          "mes": 12,
+          "ron": 5
+        }
+      },
+      {
+        "label": "2013",
+        "values": {
+          "mes": 6,
+          "ron": 10
+        }
+      },
+      {
+        "label": "2014",
+        "values": {
+          "mes": 8,
+          "ron": 5
+        }
+      },
+      {
+        "label": "2015",
+        "values": {
+          "mes": 4,
+          "ron": 3
+        }
+      },
+      {
+        "label": "2016",
+        "values": {
+          "mes": 8,
+          "ron": 13
+        }
+      },
+      {
+        "label": "2017",
+        "values": {
+          "mes": 4,
+          "ron": 11
+        }
+      },
+      {
+        "label": "2018",
+        "values": {
+          "mes": 4,
+          "ron": 6
+        }
+      },
+      {
+        "label": "2019",
+        "values": {
+          "mes": 5,
+          "ron": 14
+        }
+      },
+      {
+        "label": "2020",
+        "values": {
+          "mes": 1,
+          "ron": 3
+        }
+      },
+      {
+        "label": "2021",
+        "values": {
+          "mes": 9,
+          "ron": 13
+        }
+      },
+      {
+        "label": "2022",
+        "values": {
+          "mes": 18,
+          "ron": 3
+        }
+      },
+      {
+        "label": "2023",
+        "values": {
+          "mes": 8,
+          "ron": 10
+        }
+      },
+      {
+        "label": "2024",
+        "values": {
+          "mes": 6,
+          "ron": 7
+        }
+      },
+      {
+        "label": "2025",
+        "values": {
+          "mes": 3,
+          "ron": 8
+        }
+      },
+      {
+        "label": "2026",
+        "values": {
+          "mes": 11,
+          "ron": 3
+        }
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "mes",
+      "name": "Messi",
+      "color": "#75aadb",
+      "player": "Lionel Messi",
+      "country": "ar"
+    },
+    {
+      "id": "ron",
+      "name": "Ronaldo",
+      "color": "#da291c",
+      "player": "Cristiano Ronaldo",
+      "country": "pt"
+    }
+  ],
+  "category": "Football"
+}

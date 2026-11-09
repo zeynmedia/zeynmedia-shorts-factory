@@ -35,7 +35,7 @@ export const Hook: React.FC<{text: string; t: number; theme: Theme}> = ({text, t
 					fontFamily: fonts.title,
 					fontWeight: 900,
 					fontStyle: 'italic',
-					fontSize: 88,
+					fontSize: Math.min(88, Math.floor(1480 / Math.max(1, text.length))), // longer custom hooks shrink to fit
 					lineHeight: 1,
 					letterSpacing: 1,
 					color: '#1a1300',

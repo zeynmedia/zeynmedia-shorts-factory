@@ -36,7 +36,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - uses: FedericoCarboni/setup-ffmpeg@v3
+      # Ubuntu's own ffmpeg: the static johnvansickle build segfaults resolving the RTMP host name
+      - name: Install ffmpeg
+        timeout-minutes: 10
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends ffmpeg
       - name: Install Chromium
         run: pip install playwright==1.49.1 && python -m playwright install --with-deps chromium
       - name: Stream

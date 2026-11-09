@@ -61,6 +61,7 @@ jobs:
       GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
       CONTENT_LANG: tr
       VIDEO_LANG: tr
+      VIDEO_BRAND: TRN MEDYA
       HISTORY_FILE: data/history_tr.json
       MUSIC_DIR: music-repo
       ENGINE: v2

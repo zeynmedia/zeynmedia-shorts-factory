@@ -214,6 +214,8 @@ def main():
     slug = pick_topic(history, args.topic)
     lang = os.environ.get("VIDEO_LANG") or "en"
     spec = localize(json.loads((TOPICS / f"{slug}.json").read_text(encoding="utf-8")), lang)
+    if os.environ.get("VIDEO_BRAND"):  # each channel signs its own videos (main: ZEYN MEDYA, @nukieer: TRN MEDYA)
+        spec["props"]["brand"] = os.environ["VIDEO_BRAND"]
     print(f"[v2] konu: {slug} ({spec['props']['template']}, motor: {args.engine})")
 
     index = load_index()

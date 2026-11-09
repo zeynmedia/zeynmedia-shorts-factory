@@ -83,10 +83,10 @@ import * as THREE from 'three';
 // ---------- config ----------
 const params = new URLSearchParams(location.search);
 const LAPS = Number(params.get('laps') || 5);
-const BASE_LAP_S = 48;         // a lap with nobody answering; the race never stands still
+const BASE_LAP_S = 72;         // a lap with nobody answering; the race never stands still
 const Q_TIME = 9;              // answer window; points fall from 1000 to 500 across it
 const FIRST_BONUS = 300;
-const LAP_PER_1000 = 0.11;     // 1000 points = 11% of a lap
+const LAP_PER_1000 = 0.045;    // 1000 points = 4.5% of a lap: answers decide it, but nobody runs away
 const ACTIVE_S = 180;          // members count toward team size while they commented in the last 3 min
 const TEAMS = [
 	{id: 'stars', name: 'STARS', short: 'STR', color: 0xffc800, css: '#ffc800', num: 1},
@@ -101,9 +101,11 @@ const ROAD_W = 20;
 // ---------- renderer / scene ----------
 const W = 1080, H = 1920;
 const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('gl'), antialias: true, powerPreference: 'high-performance'});
-renderer.setPixelRatio(1);
+// ?quality=low for machines without a GPU (software WebGL): smaller render target, no shadows, fewer props
+const LOW = params.get('quality') === 'low';
+renderer.setPixelRatio(LOW ? 0.6 : 1);
 renderer.setSize(W, H, false);
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = !LOW;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -231,7 +233,7 @@ function standAt(d, side, len) {
 [[0, 1, 70], [0, -1, 70], [0.3, 1, 50], [0.55, -1, 60], [0.8, 1, 50]].forEach(([u, s, l]) => standAt(u * L, s, l));
 {
 	const black = new THREE.MeshStandardMaterial({color: 0x222222}), adMat = new THREE.MeshBasicMaterial({map: adTex});
-	for (let d = 0; d < L; d += 14) {
+	for (let d = 0; d < L; d += LOW ? 28 : 14) {
 		const {p, t, n} = at(d);
 		for (const s of [-1, 1]) {
 			if (Math.random() < 0.35) continue;
@@ -246,7 +248,7 @@ function standAt(d, side, len) {
 	const trunk = new THREE.CylinderGeometry(0.4, 0.6, 3, 6), crown = new THREE.ConeGeometry(3, 7, 7);
 	const tm = new THREE.MeshStandardMaterial({color: 0x5b3a1e}), cm = new THREE.MeshStandardMaterial({color: 0x2f7d32, roughness: 1});
 	const v = new THREE.Vector3();
-	for (let i = 0; i < 260; i++) {
+	for (let i = 0; i < (LOW ? 80 : 260); i++) {
 		v.set((Math.random() - 0.5) * 700, 0, 110 + (Math.random() - 0.5) * 700);
 		let near = false;
 		for (let j = 0; j < SEG; j += 20) if (frames[j].p.distanceTo(v) < ROAD_W + 40) { near = true; break; }
@@ -353,9 +355,10 @@ function points(ms, streak) {
 }
 
 /** Entry point for every chat message (TikTok/YouTube connectors call this). */
-window.chatMessage = (user, text) => {
+window.chatMessage = (user, text, bot = false) => {
 	const now = performance.now();
 	const m = state.members.get(user) || assign(user, now);
+	m.bot = bot;
 	m.lastSeen = now;
 	const q = state.q;
 	if (state.phase !== 'race' || !q || q.closed) return;
@@ -370,7 +373,7 @@ window.chatMessage = (user, text) => {
 	m.points += pts; m.best = Math.min(m.best, ms);
 	car.points += pts; car.lastName = user; car.lastPts = pts; car.lastAt = now;
 	car.burst += (pts / 1000) * LAP_PER_1000 * L;
-	car.burstLeft = Math.max(car.burstLeft, first ? 2.4 : 1.3);
+	car.burstLeft = Math.max(car.burstLeft, first ? 3.2 : 2);
 	q.correct.push({user, ms, pts, team: m.team});
 	const streak = m.streak >= 2 ? ` 🔥x${m.streak}` : '';
 	if (first) {
@@ -505,18 +508,23 @@ function finish(winner) {
 }
 
 // ---------- main loop ----------
-let last = performance.now();
+let last = performance.now(), fpsFrames = 0;
+setInterval(() => { window.fps = fpsFrames / 5; fpsFrames = 0; }, 5000);
 function frame(now) {
 	const dt = Math.min(0.05, (now - last) / 1000); last = now;
 	const base = L / BASE_LAP_S;
 	if (state.phase === 'race' || state.phase === 'podium') {
 		const lead = Math.max(...state.cars.map((c) => c.dist));
 		for (const c of state.cars) {
-			const behind = Math.min(1, (lead - c.dist) / (0.25 * L)); // gentle catch-up keeps the field close
-			let v = state.phase === 'podium' ? base * 0.6 : base * (1 + 0.55 * behind);
+			// Pack racing: trailing cars get pulled back in, a runaway leader is held back, nobody drops off the screen
+			const gap = lead - c.dist;
+			const behind = Math.min(1, gap / (0.06 * L));
+			const second = Math.max(...state.cars.filter((o) => o !== c).map((o) => o.dist));
+			const runaway = c.dist === lead && c.dist - second > 0.03 * L ? 0.8 : 1;
+			let v = state.phase === 'podium' ? base * 0.6 : base * (1 + 0.9 * behind) * runaway;
 			if (c.burstLeft > 0) { const take = Math.min(c.burst, (c.burst / c.burstLeft) * dt); v += take / dt; c.burst -= take; c.burstLeft -= dt; }
 			c.v = v;
-			c.dist += v * dt;
+			c.dist = Math.max(c.dist + v * dt, lead - 0.1 * L);
 			if (state.phase === 'race' && c.dist >= LAPS * L) { finish(c); break; }
 		}
 		const q = state.q;
@@ -547,6 +555,7 @@ function frame(now) {
 	director.update(now, dt);
 	renderTower();
 	renderer.render(scene, camera);
+	fpsFrames++;
 	requestAnimationFrame(frame);
 }
 
@@ -555,20 +564,59 @@ addEventListener('resize', fit); fit();
 startLights();
 requestAnimationFrame(frame);
 
-// ---------- demo chat (?demo=0 turns it off) ----------
-if (params.get('demo') !== '0') {
-	const NAMES = ['mehmet_34', 'ayse.k', 'joao_br', 'kai99', 'siti.nur', 'lucas.fr', 'omar_10', 'zeynep', 'alex_racer', 'emre.gs', 'dewi_id', 'carlos7',
-		'mia.rose', 'burak_fb', 'yuki', 'ahmet06', 'nina', 'pedro_fc', 'elif.x', 'raj_99', 'tom.uk', 'selin', 'ivan', 'hana', 'kerem', 'luna.mx', 'bilal', 'ece_35'];
-	const CHAT = ['lets goooo', 'ZORE 🔥', 'stars!!', 'gogogo', '😂😂', 'faster', 'who is winning', 'turbo pls'];
-	const skill = Object.fromEntries(NAMES.map((n) => [n, 0.35 + Math.random() * 0.6]));
-	setInterval(() => {
-		const u = NAMES[Math.floor(Math.random() * NAMES.length)];
-		const q = state.q;
-		if (state.phase === 'race' && q && !q.closed && Math.random() < skill[u]) {
-			const ok = Math.random() < 0.85;
-			setTimeout(() => window.chatMessage(u, String(ok ? q.answer : q.answer + (Math.random() < 0.5 ? 1 : -1))), 400 + Math.random() * 6000 * (1.2 - skill[u]));
-		} else window.chatMessage(u, CHAT[Math.floor(Math.random() * CHAT.length)]);
-	}, 420);
+// ---------- CPU drivers: fill the grid when few people are watching, step aside as viewers join ----------
+// They are labelled 🤖 everywhere, so nobody mistakes them for real viewers.
+const BOT_NAMES = ['Mehmet', 'Ayşe', 'Emre', 'Zeynep', 'Burak', 'Elif', 'Can', 'Deniz', 'Kerem', 'Selin', 'Mert', 'Ece', 'Ahmet', 'Büşra',
+	'Onur', 'İrem', 'Yusuf', 'Merve', 'Kaan', 'Sude', 'Barış', 'Defne', 'Arda', 'Nazlı'];
+const BOT_TARGET = Number(params.get('bots') ?? 8);
+const bots = new Map(); // display name -> skill
+function humansActive(now) {
+	let n = 0;
+	for (const [u, m] of state.members) if (!m.bot && now - m.lastSeen < ACTIVE_S * 1000) n++;
+	return n;
+}
+function manageBots(now) {
+	const want = Math.max(0, BOT_TARGET - humansActive(now) * 2);
+	while (bots.size < want) {
+		const free = BOT_NAMES.filter((n) => !bots.has('🤖 ' + n));
+		if (!free.length) break;
+		const name = '🤖 ' + free[Math.floor(Math.random() * free.length)];
+		bots.set(name, 0.45 + Math.random() * 0.5);
+		window.chatMessage(name, 'hi', true);
+	}
+	while (bots.size > want) {
+		const name = [...bots.keys()][Math.floor(Math.random() * bots.size)];
+		bots.delete(name);
+		state.members.delete(name);
+	}
+}
+let botQ = null;
+setInterval(() => {
+	const now = performance.now();
+	manageBots(now);
+	for (const name of bots.keys()) { const m = state.members.get(name); if (m) m.lastSeen = now; }
+	const q = state.q;
+	if (state.phase !== 'race' || !q || q.closed || botQ === q) return;
+	botQ = q;
+	for (const [name, skill] of bots) {
+		if (Math.random() > skill) continue;
+		const ok = Math.random() < 0.9;
+		const delay = 1200 + Math.random() * 7000 * (1.15 - skill);
+		setTimeout(() => window.chatMessage(name, String(ok ? q.answer : q.answer + (Math.random() < 0.5 ? 1 : -1)), true), delay);
+	}
+}, 500);
+
+// ---------- music: CC0 tracks on loop (?music=0 turns it off) ----------
+if (params.get('music') !== '0') {
+	const tracks = [1, 2, 3, 4, 5, 6].map((i) => `../assets/music/track_${i}.mp3`).sort(() => Math.random() - 0.5);
+	const player = new Audio();
+	player.volume = Number(params.get('volume') || 0.35);
+	let i = 0;
+	const play = () => { player.src = tracks[i++ % tracks.length]; player.play().catch(() => {}); };
+	player.addEventListener('ended', play);
+	play();
+	// Browsers block autoplay until the first click; OBS browser sources play straight away
+	addEventListener('pointerdown', () => player.paused && player.play().catch(() => {}), {once: true});
 }
 </script>
 </body>

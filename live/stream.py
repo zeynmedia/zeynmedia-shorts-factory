@@ -87,18 +87,26 @@ def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch(
             headless=False,
-            args=[f"--window-size={W},{H}", "--window-position=0,0", "--kiosk", "--hide-scrollbars", "--disable-infobars", "--noerrdialogs"],
+            args=[f"--window-size={W},{H}", "--window-position=0,0", "--kiosk", "--hide-scrollbars", "--disable-infobars", "--noerrdialogs",
+                  # no GPU on CI runners: WebGL through ANGLE's software rasteriser
+                  "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--autoplay-policy=no-user-gesture-required"],
         )
         page = browser.new_page(viewport={"width": W, "height": H})
         # The page and its assets are served from the repo so relative asset paths resolve
-        page.goto((ROOT / "index.html").as_uri() + f"?round={round_s}")
+        # LIVE_PAGE picks the game: live/index.html (vote race) or race/index.html (Math GP)
+        page_path = REPO / (os.environ.get("LIVE_PAGE") or "live/index.html")
+        page.goto(page_path.as_uri() + "?" + (os.environ.get("LIVE_QUERY") or f"round={round_s}"))
         page.wait_for_timeout(3000)  # fonts and faces
         ff = start_ffmpeg(key)
         log(f"yayın başladı, {minutes:.0f} dk")
 
         token, chat_id, page_token, next_poll, token_at = None, None, None, 0, 0
         votes = 0
+        next_fps = time.time() + 30
         while time.time() < end_at:
+            if time.time() >= next_fps:
+                next_fps = time.time() + 60
+                log("fps:", page.evaluate("window.fps ?? 'n/a'"))
             if ff.poll() is not None:
                 log(f"ffmpeg durdu (çıkış kodu {ff.returncode}), yeniden başlatılıyor")
                 time.sleep(3)

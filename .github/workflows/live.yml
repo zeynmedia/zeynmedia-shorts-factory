@@ -10,6 +10,11 @@ on:
       round_seconds:
         description: "Bir turun süresi (saniye)"
         default: "300"
+      game:
+        description: "Oyun"
+        type: choice
+        options: [race, vote]
+        default: race
       ffmpeg_log:
         description: "ffmpeg log seviyesi (hata ayıklama için info)"
         default: "warning"
@@ -31,6 +36,8 @@ jobs:
       LIVE_ROUND_S: ${{ inputs.round_seconds }}
       DISPLAY: ":99"
       LIVE_FFMPEG_LOG: ${{ inputs.ffmpeg_log }}
+      LIVE_PAGE: ${{ inputs.game == 'vote' && 'live/index.html' || 'race/index.html' }}
+      LIVE_QUERY: ${{ inputs.game == 'vote' && format('round={0}', inputs.round_seconds) || 'quality=low&music=0&demo=0' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

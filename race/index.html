@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Race</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	html, body { width: 100%; height: 100%; overflow: hidden; background: #05070f; font-family: Montserrat, sans-serif; color: #fff; }
+	#stage { position: absolute; left: 50%; top: 50%; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden; background: #0d3b1e; }
+	canvas { position: absolute; inset: 0; }
+	.ui { position: absolute; }
+	#brand { top: 26px; left: 0; right: 0; text-align: center; font: italic 900 46px Montserrat; letter-spacing: 2px; text-shadow: 0 4px 0 rgba(0,0,0,0.35); }
+	#brand b { color: #ffd84a; }
+	#qbox { top: 96px; left: 120px; right: 120px; height: 200px; border-radius: 34px; background: linear-gradient(180deg, #ffffff, #e9eefc);
+		box-shadow: 0 14px 0 #b9c3e6, 0 24px 50px rgba(0,0,0,0.45); color: #13204d; text-align: center; overflow: hidden; }
+	#qlabel { margin-top: 18px; font: 800 26px Montserrat; letter-spacing: 3px; color: #5a6aa8; }
+	#question { font: 400 122px/1 'Bebas Neue'; letter-spacing: 4px; margin-top: 2px; }
+	#qtimer { position: absolute; left: 0; bottom: 0; height: 12px; background: linear-gradient(90deg, #ff4d4d, #ffd84a, #3df07a); transition: width 0.1s linear; }
+	#qbox.solved { animation: solved 0.5s; }
+	@keyframes solved { 30% { transform: scale(1.06); background: #d8ffe4; } }
+	#solver { top: 306px; left: 0; right: 0; text-align: center; font: 900 36px Montserrat; height: 44px; opacity: 0; transition: opacity 0.2s; text-shadow: 0 3px 8px rgba(0,0,0,0.6); }
+	#lap { top: 640px; left: 370px; width: 340px; text-align: center; font: 400 64px 'Bebas Neue'; letter-spacing: 3px; color: #ffd84a; text-shadow: 0 3px 0 rgba(0,0,0,0.4); }
+	#board { top: 720px; left: 382px; width: 316px; }
+	.brow { position: absolute; left: 0; right: 0; height: 78px; display: flex; align-items: center; gap: 12px; padding: 0 14px; border-radius: 18px;
+		background: rgba(0,0,0,0.45); border: 3px solid rgba(255,255,255,0.12); transition: top 0.5s cubic-bezier(.2,.8,.2,1); }
+	.brow .pos { font: 400 46px 'Bebas Neue'; width: 30px; }
+	.brow .sw { width: 22px; height: 46px; border-radius: 6px; }
+	.brow .tn { flex: 1; font: 900 30px Montserrat; line-height: 1; }
+	.brow .tn small { display: block; font: 700 19px Montserrat; opacity: 0.75; margin-top: 4px; }
+	#feed { top: 1150px; left: 382px; width: 316px; height: 250px; overflow: hidden; }
+	.fi { position: absolute; left: 0; right: 0; font: 800 21px/1.25 Montserrat; transition: top 0.3s, opacity 0.3s; text-shadow: 0 2px 4px rgba(0,0,0,0.7); }
+	.fi em { font-style: normal; }
+	#hint { bottom: 22px; left: 0; right: 0; text-align: center; font: 800 28px Montserrat; text-shadow: 0 3px 6px rgba(0,0,0,0.7); }
+	#hint span { color: #ffd84a; }
+	#podium { inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+		background: radial-gradient(circle at 50% 40%, rgba(255,216,74,0.35), rgba(3,6,20,0.94) 62%); }
+	#podium.show { display: flex; animation: pop 0.5s ease-out; }
+	@keyframes pop { from { opacity: 0; transform: scale(1.1); } }
+	#podium .flagrow { font-size: 90px; }
+	#podium h1 { font: italic 900 120px/1 Montserrat; text-transform: uppercase; letter-spacing: 2px; }
+	#podium h2 { font: 900 42px Montserrat; color: #ffd84a; letter-spacing: 4px; }
+	#podium .car { width: 360px; height: 200px; }
+	#mvps { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; width: 820px; }
+	.mvp { display: flex; align-items: center; gap: 22px; padding: 16px 30px; border-radius: 22px; background: rgba(255,255,255,0.1); font: 800 40px Montserrat; }
+	.mvp .medal { font-size: 54px; }
+	.mvp .nm { flex: 1; }
+	.mvp .ct { font: 400 52px 'Bebas Neue'; color: #ffd84a; }
+	#next { font: 800 34px Montserrat; opacity: 0.85; margin-top: 10px; }
+	#count { inset: 0; display: none; align-items: center; justify-content: center; font: 400 420px 'Bebas Neue'; color: #ffd84a;
+		text-shadow: 0 12px 0 rgba(0,0,0,0.4); background: rgba(0,0,0,0.25); }
+	#count.show { display: flex; }
+</style>
+</head>
+<body>
+<div id="stage">
+	<canvas id="cv" width="1080" height="1920"></canvas>
+	<div class="ui" id="brand">MATH <b>RACE</b> 🏁</div>
+	<div class="ui" id="qbox"><div id="qlabel">FASTER ANSWER = MORE POINTS</div><div id="question">7 + 8</div><div id="qtimer"></div></div>
+	<div class="ui" id="solver"></div>
+	<div class="ui" id="lap">LAP 1 / 3</div>
+	<div class="ui" id="board"></div>
+	<div class="ui" id="feed"></div>
+	<div class="ui" id="hint">Comment to join a team · <span>answer fast = more points 🔥</span></div>
+	<div class="ui" id="podium"></div>
+	<div class="ui" id="count"></div>
+</div>
+<script>
+// ---------- config ----------
+const params = new URLSearchParams(location.search);
+const LAPS = Number(params.get('laps') || 3);
+const BASE_SPEED = 26;          // px/s when nobody answers: the race never stands still
+const TURBO = 520;              // extra px for the first correct answer, spread over TURBO_S
+const TURBO_S = 2.2;
+const PUSH = 110;               // extra px for every other correct answer
+const Q_TIME = 9;               // answer window; points fall from 1000 to 500 across it
+const ACTIVE_S = 180;           // a member counts toward team size while they commented in the last 3 min
+const TEAMS = [
+	{id: 'stars', name: 'STARS', color: '#ffd23f', dark: '#c79a00', num: 1},
+	{id: 'zore', name: 'ZORE', color: '#ff3b5c', dark: '#b3002a', num: 2},
+	{id: 'thunder', name: 'THUNDER', color: '#3da5ff', dark: '#0b5fb0', num: 3},
+	{id: 'venom', name: 'VENOM', color: '#39e67a', dark: '#11853c', num: 4},
+	{id: 'blaze', name: 'BLAZE', color: '#ff8a1f', dark: '#b85300', num: 5},
+];
+
+// ---------- track: a tall stadium oval, cars run anticlockwise in 5 lanes ----------
+const CX = 540, TOP_Y = 760, BOT_Y = 1400, R = 290, HALF_W = 118;
+const STRAIGHT = BOT_Y - TOP_Y, ARC = Math.PI * R, L = 2 * STRAIGHT + 2 * ARC;
+const LANES = [-88, -44, 0, 44, 88];
+const START_S = STRAIGHT / 2; // start/finish line in the middle of the right straight
+
+/** Point and heading on the centreline offset outward by o, at distance s from the bottom of the right straight. */
+function trackAt(s, o) {
+	s = ((s % L) + L) % L;
+	if (s < STRAIGHT) return {x: CX + R + o, y: BOT_Y - s, a: -Math.PI / 2};
+	s -= STRAIGHT;
+	if (s < ARC) { const t = s / R; return {x: CX + (R + o) * Math.cos(t), y: TOP_Y - (R + o) * Math.sin(t), a: -Math.PI / 2 - t}; }
+	s -= ARC;
+	if (s < STRAIGHT) return {x: CX - R - o, y: TOP_Y + s, a: Math.PI / 2};
+	s -= STRAIGHT;
+	const t = Math.PI + s / R;
+	return {x: CX + (R + o) * Math.cos(t), y: BOT_Y - (R + o) * Math.sin(t), a: -Math.PI / 2 - t};
+}
+
+const cv = document.getElementById('cv'), g = cv.getContext('2d');
+
+function stadiumPath(ctx, r) {
+	ctx.beginPath();
+	ctx.moveTo(CX + r, BOT_Y);
+	ctx.lineTo(CX + r, TOP_Y);
+	ctx.arc(CX, TOP_Y, r, 0, Math.PI, true);
+	ctx.lineTo(CX - r, BOT_Y);
+	ctx.arc(CX, BOT_Y, r, Math.PI, 0, true);
+	ctx.closePath();
+}
+
+// Static background drawn once
+const bg = document.createElement('canvas'); bg.width = 1080; bg.height = 1920;
+(function drawBackground() {
+	const c = bg.getContext('2d');
+	const grass = c.createLinearGradient(0, 0, 0, 1920);
+	grass.addColorStop(0, '#0f4d26'); grass.addColorStop(1, '#0a3319');
+	c.fillStyle = grass; c.fillRect(0, 0, 1080, 1920);
+	for (let i = 0; i < 1920; i += 80) { c.fillStyle = i % 160 ? 'rgba(255,255,255,0.025)' : 'rgba(0,0,0,0.04)'; c.fillRect(0, i, 1080, 80); }
+	// kerbs
+	c.lineWidth = 16;
+	for (const r of [R + HALF_W + 8, R - HALF_W - 8]) {
+		c.setLineDash([34, 34]); c.strokeStyle = '#e8263c'; stadiumPath(c, r); c.stroke();
+		c.lineDashOffset = 34; c.strokeStyle = '#ffffff'; stadiumPath(c, r); c.stroke(); c.lineDashOffset = 0;
+	}
+	c.setLineDash([]);
+	// asphalt
+	c.lineWidth = HALF_W * 2; c.strokeStyle = '#2b2f3a'; stadiumPath(c, R); c.stroke();
+	c.lineWidth = HALF_W * 2 - 10; c.strokeStyle = '#323745'; stadiumPath(c, R); c.stroke();
+	// lane lines
+	c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,0.22)'; c.setLineDash([26, 30]);
+	for (const o of [-66, -22, 22, 66]) { stadiumPath(c, R + o); c.stroke(); }
+	c.setLineDash([]);
+	// infield
+	c.fillStyle = 'rgba(0,0,0,0.18)'; stadiumPath(c, R - HALF_W - 18); c.fill();
+	// start / finish chequers
+	const sp = trackAt(START_S, 0);
+	const sq = 18;
+	for (let i = 0; i < (HALF_W * 2) / sq; i++) for (let j = 0; j < 2; j++) {
+		c.fillStyle = (i + j) % 2 ? '#111' : '#fff';
+		c.fillRect(sp.x - HALF_W + i * sq, sp.y - sq + j * sq, sq, sq);
+	}
+})();
+
+// ---------- cars ----------
+function drawCar(ctx, x, y, a, team, scale = 1, glow = 0) {
+	ctx.save();
+	ctx.translate(x, y); ctx.rotate(a + Math.PI / 2); ctx.scale(scale, scale);
+	const W = 34, H = 66;
+	if (glow > 0) { ctx.shadowColor = team.color; ctx.shadowBlur = 30 * glow; }
+	// shadow
+	ctx.fillStyle = 'rgba(0,0,0,0.35)'; roundRect(ctx, -W / 2 + 4, -H / 2 + 6, W, H, 12); ctx.fill();
+	ctx.shadowBlur = 0;
+	// wheels
+	ctx.fillStyle = '#111';
+	for (const [wx, wy] of [[-W / 2 - 4, -H / 2 + 10], [W / 2 - 4, -H / 2 + 10], [-W / 2 - 4, H / 2 - 22], [W / 2 - 4, H / 2 - 22]]) roundRect(ctx, wx, wy, 8, 14, 3), ctx.fill();
+	// body
+	const body = ctx.createLinearGradient(-W / 2, 0, W / 2, 0);
+	body.addColorStop(0, team.dark); body.addColorStop(0.5, team.color); body.addColorStop(1, team.dark);
+	ctx.fillStyle = body; roundRect(ctx, -W / 2, -H / 2, W, H, 13); ctx.fill();
+	// nose + spoiler
+	ctx.fillStyle = team.dark; roundRect(ctx, -W / 2 - 3, H / 2 - 8, W + 6, 8, 3); ctx.fill();
+	ctx.fillStyle = '#1a1a1a'; roundRect(ctx, -W / 2 + 2, -H / 2 - 2, W - 4, 6, 3); ctx.fill();
+	// racing stripe
+	ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(-3, -H / 2 + 2, 6, H - 4);
+	// cockpit
+	ctx.fillStyle = '#0b1022'; roundRect(ctx, -W / 2 + 6, -8, W - 12, 24, 8); ctx.fill();
+	ctx.fillStyle = 'rgba(140,190,255,0.55)'; roundRect(ctx, -W / 2 + 8, -6, W - 16, 8, 4); ctx.fill();
+	// number
+	ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, -H / 2 + 16, 9, 0, Math.PI * 2); ctx.fill();
+	ctx.fillStyle = '#111'; ctx.font = '900 13px Montserrat'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(team.num, 0, -H / 2 + 16.5);
+	ctx.restore();
+}
+function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+
+// ---------- game state ----------
+const state = {
+	phase: 'count', countUntil: 0, race: 0,
+	cars: TEAMS.map((t, i) => ({team: t, lane: LANES[i], dist: 0, burst: 0, burstLeft: 0, flame: 0, lastName: '', correct: 0})),
+	members: new Map(), // user -> {team, lastSeen, correct, best}
+	q: null, particles: [], finishOrder: [],
+};
+
+function teamSizes(now) {
+	const sizes = Object.fromEntries(TEAMS.map((t) => [t.id, 0]));
+	for (const m of state.members.values()) if (now - m.lastSeen < ACTIVE_S * 1000) sizes[m.team.id]++;
+	return sizes;
+}
+/** New commenters go to the team with the fewest active members, so teams stay even. */
+function assign(user, now) {
+	const sizes = teamSizes(now);
+	const min = Math.min(...Object.values(sizes));
+	const pool = TEAMS.filter((t) => sizes[t.id] === min);
+	const team = pool[Math.floor(Math.random() * pool.length)];
+	state.members.set(user, {team, lastSeen: now, correct: 0, best: Infinity});
+	feed(`<em style="color:${team.color}">${esc(user)}</em> joined ${team.name} 🏎️`);
+	return state.members.get(user);
+}
+
+function newQuestion() {
+	const lvl = Math.min(3, Math.floor(leaderLaps())); // gets harder as the race goes on
+	const max = [9, 15, 25, 50][lvl];
+	const a = 1 + Math.floor(Math.random() * max), b = 1 + Math.floor(Math.random() * max);
+	state.q = {a, b, answer: a + b, start: performance.now(), solvedBy: null, answered: new Set(), correct: [], closed: false};
+	document.getElementById('question').textContent = `${a} + ${b}`;
+	document.getElementById('qlabel').textContent = 'FASTER ANSWER = MORE POINTS';
+	document.getElementById('qbox').classList.remove('solved');
+}
+
+/** Kahoot-style: 1000 points at 0 s down to 500 at the buzzer, x streak bonus; points become track distance. */
+const PX_PER_POINT = 0.42;
+const FIRST_BONUS = 300;
+function points(ms, streak) {
+	const base = Math.round(1000 * (1 - 0.5 * Math.min(1, ms / (Q_TIME * 1000))));
+	return Math.round(base * (1 + 0.1 * Math.min(5, streak - 1)));
+}
+
+/** Entry point for every chat message (TikTok/YouTube connectors call this). */
+window.chatMessage = (user, text) => {
+	const now = performance.now();
+	let m = state.members.get(user) || assign(user, now);
+	m.lastSeen = now;
+	const q = state.q;
+	if (state.phase !== 'race' || !q || q.closed) return;
+	const n = parseInt(String(text).replace(/[^\d-]/g, ''), 10);
+	if (Number.isNaN(n) || q.answered.has(user)) return;
+	q.answered.add(user);
+	if (n !== q.answer) { m.streak = 0; return; }
+	const car = state.cars.find((c) => c.team === m.team);
+	const ms = now - q.start;
+	m.streak = (m.streak || 0) + 1;
+	const first = !q.solvedBy;
+	const pts = points(ms, m.streak) + (first ? FIRST_BONUS : 0);
+	m.correct++; m.points = (m.points || 0) + pts; m.best = Math.min(m.best, ms);
+	car.correct++; car.points = (car.points || 0) + pts;
+	car.lastName = user;
+	car.lastAt = now;
+	car.lastPts = pts;
+	car.burst += pts * PX_PER_POINT;
+	car.burstLeft = Math.max(car.burstLeft, first ? TURBO_S : 1.2);
+	q.correct.push({user, ms, pts, team: m.team});
+	burst(car, first ? 26 : 8);
+	const streak = m.streak >= 2 ? ` 🔥x${m.streak}` : '';
+	if (first) {
+		q.solvedBy = user;
+		car.flame = 1;
+		beep(880, 0.12); setTimeout(() => beep(1320, 0.18), 90);
+		const s = document.getElementById('solver');
+		s.innerHTML = `⚡ FIRST! <span style="color:${m.team.color}">${esc(user)}</span> · ${(ms / 1000).toFixed(1)}s · +${pts}`;
+		s.style.opacity = 1;
+		document.getElementById('qbox').classList.add('solved');
+		feed(`⚡ <em style="color:${m.team.color}">${esc(user)}</em> +${pts}${streak}`);
+	} else {
+		beep(660, 0.06);
+		feed(`✓ <em style="color:${m.team.color}">${esc(user)}</em> +${pts}${streak}`);
+	}
+};
+
+/** Buzzer: show the answer and the three fastest, then the next question. */
+function closeQuestion() {
+	const q = state.q;
+	q.closed = true;
+	for (const [u, m] of state.members) if (!q.answered.has(u)) m.streak = 0; // sitting out a question breaks the streak
+	const top = q.correct.slice(0, 3).map((c, i) => `${['🥇', '🥈', '🥉'][i]} <span style="color:${c.team.color}">${esc(c.user)}</span> ${(c.ms / 1000).toFixed(1)}s`).join('  ');
+	document.getElementById('question').textContent = `= ${q.answer}`;
+	document.getElementById('qlabel').textContent = q.correct.length ? `${q.correct.length} CORRECT` : 'NOBODY GOT IT 😱';
+	const s = document.getElementById('solver');
+	s.innerHTML = top || '';
+	s.style.opacity = top ? 1 : 0;
+	setTimeout(() => { s.style.opacity = 0; if (state.phase === 'race') newQuestion(); }, 2200);
+}
+
+function leaderLaps() { return Math.max(...state.cars.map((c) => c.dist)) / L; }
+
+// ---------- effects ----------
+function burst(car, n) {
+	const p = trackAt(START_S + car.dist, car.lane);
+	for (let i = 0; i < n; i++) state.particles.push({x: p.x, y: p.y, vx: (Math.random() - 0.5) * 420, vy: (Math.random() - 0.5) * 420, life: 0.6 + Math.random() * 0.5, c: car.team.color});
+}
+let audio;
+function beep(f, d) {
+	try {
+		audio = audio || new AudioContext();
+		const o = audio.createOscillator(), v = audio.createGain();
+		o.type = 'square'; o.frequency.value = f; v.gain.value = 0.05;
+		o.connect(v).connect(audio.destination); o.start(); v.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + d); o.stop(audio.currentTime + d);
+	} catch {}
+}
+const feedEl = document.getElementById('feed');
+function feed(html) {
+	const d = document.createElement('div'); d.className = 'fi'; d.innerHTML = html; feedEl.prepend(d);
+	[...feedEl.children].forEach((c, i) => { c.style.top = i * 34 + 'px'; c.style.opacity = i > 5 ? 0 : 1 - i * 0.14; });
+	while (feedEl.children.length > 8) feedEl.lastChild.remove();
+}
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'})[c]);
+
+// ---------- leaderboard ----------
+const boardEl = document.getElementById('board');
+TEAMS.forEach((t) => {
+	const r = document.createElement('div'); r.className = 'brow'; r.id = 'b-' + t.id;
+	r.innerHTML = `<div class="pos"></div><div class="sw" style="background:${t.color}"></div><div class="tn">${t.name}<small></small></div>`;
+	boardEl.appendChild(r);
+});
+function renderBoard() {
+	const now = performance.now(), sizes = teamSizes(now);
+	const order = [...state.cars].sort((a, b) => b.dist - a.dist);
+	order.forEach((c, i) => {
+		const r = document.getElementById('b-' + c.team.id);
+		r.style.top = i * 86 + 'px';
+		r.querySelector('.pos').textContent = i + 1;
+		r.querySelector('small').textContent = `👥 ${sizes[c.team.id]} · ${(c.points || 0).toLocaleString('en')} pts`;
+		r.style.borderColor = i === 0 ? c.team.color : 'rgba(255,255,255,0.12)';
+	});
+	const lap = Math.min(LAPS, Math.floor(order[0].dist / L) + 1);
+	document.getElementById('lap').textContent = lap === LAPS ? 'FINAL LAP 🔥' : `LAP ${lap} / ${LAPS}`;
+}
+
+// ---------- race flow ----------
+function startCountdown() {
+	state.phase = 'count';
+	state.race++;
+	state.cars.forEach((c) => Object.assign(c, {dist: 0, burst: 0, burstLeft: 0, flame: 0, correct: 0, points: 0, lastName: ''}));
+	for (const m of state.members.values()) { m.correct = 0; m.points = 0; m.streak = 0; m.best = Infinity; }
+	state.finishOrder = [];
+	state.q = null;
+	document.getElementById('question').textContent = 'READY';
+	const el = document.getElementById('count');
+	el.classList.add('show');
+	[3, 2, 1, 'GO!'].forEach((v, i) => setTimeout(() => { el.textContent = v; beep(v === 'GO!' ? 1046 : 523, 0.2); }, i * 900));
+	setTimeout(() => { el.classList.remove('show'); state.phase = 'race'; newQuestion(); }, 3600);
+}
+
+function finish(winner) {
+	state.phase = 'podium';
+	const mvps = [...state.members.entries()].filter(([, m]) => m.team === winner.team && m.correct > 0)
+		.sort((a, b) => (b[1].points || 0) - (a[1].points || 0)).slice(0, 3);
+	const fastest = [...state.members.entries()].filter(([, m]) => m.best < Infinity).sort((a, b) => a[1].best - b[1].best)[0];
+	const medals = ['🥇', '🥈', '🥉'];
+	const p = document.getElementById('podium');
+	p.innerHTML = `<div class="flagrow">🏁🏆🏁</div><h2>RACE ${state.race} WINNER</h2>
+		<h1 style="color:${winner.team.color}">TEAM ${winner.team.name}</h1><canvas class="car" id="pcar" width="360" height="200"></canvas>
+		<div id="mvps">${mvps.map(([u, m], i) => `<div class="mvp"><span class="medal">${medals[i]}</span><span class="nm">${esc(u)}</span><span class="ct">${(m.points || 0).toLocaleString('en')}</span></div>`).join('')}
+		${fastest ? `<div class="mvp"><span class="medal">⚡</span><span class="nm">${esc(fastest[0])} <small style="opacity:.7">fastest</small></span><span class="ct">${(fastest[1].best / 1000).toFixed(1)}s</span></div>` : ''}</div>
+		<div id="next">Next race in 12s · keep commenting to stay in your team</div>`;
+	p.classList.add('show');
+	const pc = document.getElementById('pcar').getContext('2d');
+	drawCar(pc, 180, 100, 0, winner.team, 2.4, 1);
+	[0, 150, 300].forEach((d) => setTimeout(() => beep(660 + d, 0.25), d));
+	setTimeout(() => { p.classList.remove('show'); startCountdown(); }, 12000);
+}
+
+// ---------- main loop ----------
+let last = performance.now();
+function frame(now) {
+	const dt = Math.min(0.05, (now - last) / 1000); last = now;
+	if (state.phase === 'race') {
+		const lead = Math.max(...state.cars.map((c) => c.dist));
+		for (const c of state.cars) {
+			// Gentle catch-up so trailing teams stay in it and the race stays close
+			const behind = Math.min(1, (lead - c.dist) / 1500);
+			let v = BASE_SPEED * (1 + 0.6 * behind);
+			if (c.burstLeft > 0) { const take = Math.min(c.burst, (c.burst / c.burstLeft) * dt); v += take / dt; c.burst -= take; c.burstLeft -= dt; }
+			c.dist += v * dt;
+			c.flame = Math.max(0, c.flame - dt * 0.6);
+			if (c.burstLeft > 0 && Math.random() < 0.6) {
+				const p = trackAt(START_S + c.dist - 30, c.lane);
+				state.particles.push({x: p.x, y: p.y, vx: (Math.random() - 0.5) * 60, vy: (Math.random() - 0.5) * 60, life: 0.35, c: Math.random() < 0.5 ? '#ffd84a' : '#ff6a2b'});
+			}
+			if (c.dist >= LAPS * L) { finish(c); break; }
+		}
+		const q = state.q;
+		if (q && !q.closed) {
+			const left = 1 - (now - q.start) / (Q_TIME * 1000);
+			document.getElementById('qtimer').style.width = Math.max(0, left) * 100 + '%';
+			if (left <= 0) closeQuestion();
+		}
+	}
+	// draw
+	g.drawImage(bg, 0, 0);
+	const order = [...state.cars].sort((a, b) => a.dist - b.dist);
+	for (const c of order) {
+		const p = trackAt(START_S + c.dist, c.lane);
+		const boosting = c.burstLeft > 0;
+		drawCar(g, p.x, p.y, p.a, c.team, boosting ? 1.12 : 1, boosting ? 1 : 0.2);
+		// name tag only for a car that just scored, so five cars side by side stay readable
+		if (!c.lastAt || now - c.lastAt > 2500) continue;
+		g.save();
+		g.font = '900 20px Montserrat'; g.textAlign = 'center';
+		const label = `${c.lastName.slice(0, 12)} +${c.lastPts}`;
+		const tx = p.x, ty = p.y - 52;
+		const w = g.measureText(label).width + 22;
+		g.fillStyle = c.team.color; g.beginPath(); g.roundRect(tx - w / 2, ty - 18, w, 30, 15); g.fill();
+		g.fillStyle = '#111'; g.fillText(label, tx, ty + 4);
+		g.restore();
+	}
+	state.particles = state.particles.filter((pt) => (pt.life -= dt) > 0);
+	for (const pt of state.particles) {
+		pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+		g.globalAlpha = Math.max(0, Math.min(1, pt.life * 2)); g.fillStyle = pt.c;
+		g.beginPath(); g.arc(pt.x, pt.y, 4, 0, Math.PI * 2); g.fill();
+	}
+	g.globalAlpha = 1;
+	renderBoard();
+	requestAnimationFrame(frame);
+}
+
+function fit() {
+	const s = Math.min(innerWidth / 1080, innerHeight / 1920);
+	const st = document.getElementById('stage');
+	st.style.transform = `scale(${s}) translate(-50%, -50%)`;
+	st.style.transformOrigin = '0 0';
+	st.style.left = '50%'; st.style.top = '50%';
+	st.style.transform = `translate(-50%, -50%) scale(${s})`;
+	st.style.transformOrigin = 'center center';
+}
+addEventListener('resize', fit); fit();
+startCountdown();
+requestAnimationFrame(frame);
+
+// ---------- demo chat (?demo=0 turns it off) ----------
+if (params.get('demo') !== '0') {
+	const NAMES = ['mehmet_34', 'ayse.k', 'joao_br', 'kai99', 'siti.nur', 'lucas.fr', 'omar_10', 'zeynep', 'alex_racer', 'emre.gs', 'dewi_id', 'carlos7',
+		'mia.rose', 'burak_fb', 'yuki', 'ahmet06', 'nina', 'pedro_fc', 'elif.x', 'raj_99', 'tom.uk', 'selin', 'ivan', 'hana', 'kerem', 'luna.mx', 'bilal', 'ece_35'];
+	const CHAT = ['lets goooo', 'ZORE 🔥', 'stars!!', 'gogogo', '😂😂', 'faster', 'who is winning', 'turbo pls'];
+	const smart = Object.fromEntries(NAMES.map((n) => [n, 0.4 + Math.random() * 0.55]));
+	setInterval(() => {
+		const u = NAMES[Math.floor(Math.random() * NAMES.length)];
+		if (state.phase === 'race' && state.q && Math.random() < smart[u]) {
+			const q = state.q;
+			const ok = Math.random() < 0.85;
+			setTimeout(() => window.chatMessage(u, String(ok ? q.answer : q.answer + (Math.random() < 0.5 ? 1 : -1))), 300 + Math.random() * 2500);
+		} else window.chatMessage(u, CHAT[Math.floor(Math.random() * CHAT.length)]);
+	}, 450);
+}
+</script>
+</body>
+</html>

@@ -344,5 +344,14 @@
     "music": "S3BZS_-_MONTAGEM_-_PR_FUNK__Extended_Long_Version_(0).mp3",
     "engine": "v2",
     "scheduled": true
+  },
+  {
+    "date": "20261109-184350",
+    "topic": "v2:coaches-ucl-titles",
+    "title": "Mourinho vs Pep Guardiola vs Ancelotti 😱🏆",
+    "video_id": "5NVZPJd64bs",
+    "music": "DYGO___Mxng0_-_FUNK_INFERNAL_[Brazilian_Phonk](0).mp3",
+    "engine": "v2",
+    "scheduled": false
   }
 ]

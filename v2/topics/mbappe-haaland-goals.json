@@ -1,0 +1,132 @@
+{
+  "youtube": {
+    "title": "Mbappé vs Haaland Goals Per Season ⚽️🔥",
+    "description": "Mbappé vs Haaland — Club Goals Per Year\n\nSource: Wikipedia career statistics (club, all competitions).\n\nMake your own viral Shorts free: https://studio.zeynelerek.com/templates/mbappe-haaland-goals\n\n#shorts #football #sports #stats #barchartrace",
+    "tags": [
+      "mbappe",
+      "haaland",
+      "real madrid",
+      "man city",
+      "goals",
+      "shorts",
+      "sports stats",
+      "bar chart race",
+      "comparison",
+      "goat"
+    ]
+  },
+  "props": {
+    "brand": "ZEYN MEDYA",
+    "durationSec": 18,
+    "sfx": true,
+    "showDeltas": true,
+    "valueFormat": "int",
+    "template": "diamond",
+    "title": "Mbappé vs Haaland",
+    "subtitle": "Club Goals Per Year",
+    "stepIcon": "ball",
+    "steps": [
+      {
+        "label": "2015",
+        "values": {
+          "mba": 0,
+          "haa": 2
+        }
+      },
+      {
+        "label": "2016",
+        "values": {
+          "mba": 3,
+          "haa": 16
+        }
+      },
+      {
+        "label": "2017",
+        "values": {
+          "mba": 28,
+          "haa": 6
+        }
+      },
+      {
+        "label": "2018",
+        "values": {
+          "mba": 21,
+          "haa": 16
+        }
+      },
+      {
+        "label": "2019",
+        "values": {
+          "mba": 39,
+          "haa": 1
+        }
+      },
+      {
+        "label": "2020",
+        "values": {
+          "mba": 30,
+          "haa": 44
+        }
+      },
+      {
+        "label": "2021",
+        "values": {
+          "mba": 42,
+          "haa": 41
+        }
+      },
+      {
+        "label": "2022",
+        "values": {
+          "mba": 39,
+          "haa": 29
+        }
+      },
+      {
+        "label": "2023",
+        "values": {
+          "mba": 41,
+          "haa": 52
+        }
+      },
+      {
+        "label": "2024",
+        "values": {
+          "mba": 44,
+          "haa": 38
+        }
+      },
+      {
+        "label": "2025",
+        "values": {
+          "mba": 44,
+          "haa": 34
+        }
+      },
+      {
+        "label": "2026",
+        "values": {
+          "mba": 42,
+          "haa": 38
+        }
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "mba",
+      "name": "Mbappé",
+      "color": "#1f3f99",
+      "player": "Kylian Mbappé",
+      "country": "fr"
+    },
+    {
+      "id": "haa",
+      "name": "Haaland",
+      "color": "#6cabdd",
+      "player": "Erling Haaland",
+      "country": "no"
+    }
+  ],
+  "category": "Football"
+}

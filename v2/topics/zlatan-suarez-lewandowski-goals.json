@@ -1,0 +1,279 @@
+{
+  "youtube": {
+    "title": "Zlatan vs Suárez vs Lewandowski Career Goals ⚽️😱",
+    "description": "Zlatan vs Suárez vs Lewandowski — Club Goals Per Year\n\nSource: Wikipedia career statistics (club, all competitions).\n\nMake your own viral Shorts free: https://studio.zeynelerek.com/templates/zlatan-suarez-lewandowski-goals\n\n#shorts #football #sports #stats #barchartrace",
+    "tags": [
+      "zlatan",
+      "ibrahimovic",
+      "suarez",
+      "lewandowski",
+      "goals",
+      "shorts",
+      "sports stats",
+      "bar chart race",
+      "comparison",
+      "goat"
+    ]
+  },
+  "props": {
+    "brand": "ZEYN MEDYA",
+    "durationSec": 18,
+    "sfx": true,
+    "showDeltas": true,
+    "valueFormat": "int",
+    "template": "navy",
+    "title": "Zlatan vs Suárez vs Lewandowski",
+    "subtitle": "Club Goals Per Year",
+    "stepIcon": "ball",
+    "steps": [
+      {
+        "label": "1999",
+        "values": {
+          "zla": 1,
+          "sua": 0,
+          "lew": 0
+        }
+      },
+      {
+        "label": "2000",
+        "values": {
+          "zla": 14,
+          "sua": 0,
+          "lew": 0
+        }
+      },
+      {
+        "label": "2001",
+        "values": {
+          "zla": 3,
+          "sua": 0,
+          "lew": 0
+        }
+      },
+      {
+        "label": "2002",
+        "values": {
+          "zla": 9,
+          "sua": 0,
+          "lew": 0
+        }
+      },
+      {
+        "label": "2003",
+        "values": {
+          "zla": 21,
+          "sua": 0,
+          "lew": 0
+        }
+      },
+      {
+        "label": "2004",
+        "values": {
+          "zla": 15,
+          "sua": 0,
+          "lew": 0
+        }
+      },
+      {
+        "label": "2005",
+        "values": {
+          "zla": 19,
+          "sua": 0,
+          "lew": 4
+        }
+      },
+      {
+        "label": "2006",
+        "values": {
+          "zla": 10,
+          "sua": 12,
+          "lew": 4
+        }
+      },
+      {
+        "label": "2007",
+        "values": {
+          "zla": 15,
+          "sua": 15,
+          "lew": 25
+        }
+      },
+      {
+        "label": "2008",
+        "values": {
+          "zla": 22,
+          "sua": 22,
+          "lew": 21
+        }
+      },
+      {
+        "label": "2009",
+        "values": {
+          "zla": 29,
+          "sua": 28,
+          "lew": 20
+        }
+      },
+      {
+        "label": "2010",
+        "values": {
+          "zla": 21,
+          "sua": 49,
+          "lew": 21
+        }
+      },
+      {
+        "label": "2011",
+        "values": {
+          "zla": 22,
+          "sua": 16,
+          "lew": 9
+        }
+      },
+      {
+        "label": "2012",
+        "values": {
+          "zla": 35,
+          "sua": 17,
+          "lew": 30
+        }
+      },
+      {
+        "label": "2013",
+        "values": {
+          "zla": 35,
+          "sua": 30,
+          "lew": 36
+        }
+      },
+      {
+        "label": "2014",
+        "values": {
+          "zla": 41,
+          "sua": 31,
+          "lew": 28
+        }
+      },
+      {
+        "label": "2015",
+        "values": {
+          "zla": 30,
+          "sua": 25,
+          "lew": 25
+        }
+      },
+      {
+        "label": "2016",
+        "values": {
+          "zla": 50,
+          "sua": 59,
+          "lew": 42
+        }
+      },
+      {
+        "label": "2017",
+        "values": {
+          "zla": 28,
+          "sua": 37,
+          "lew": 43
+        }
+      },
+      {
+        "label": "2018",
+        "values": {
+          "zla": 23,
+          "sua": 31,
+          "lew": 41
+        }
+      },
+      {
+        "label": "2019",
+        "values": {
+          "zla": 31,
+          "sua": 25,
+          "lew": 40
+        }
+      },
+      {
+        "label": "2020",
+        "values": {
+          "zla": 11,
+          "sua": 21,
+          "lew": 55
+        }
+      },
+      {
+        "label": "2021",
+        "values": {
+          "zla": 17,
+          "sua": 21,
+          "lew": 48
+        }
+      },
+      {
+        "label": "2022",
+        "values": {
+          "zla": 8,
+          "sua": 21,
+          "lew": 50
+        }
+      },
+      {
+        "label": "2023",
+        "values": {
+          "zla": 1,
+          "sua": 29,
+          "lew": 33
+        }
+      },
+      {
+        "label": "2024",
+        "values": {
+          "zla": 0,
+          "sua": 25,
+          "lew": 26
+        }
+      },
+      {
+        "label": "2025",
+        "values": {
+          "zla": 0,
+          "sua": 17,
+          "lew": 42
+        }
+      },
+      {
+        "label": "2026",
+        "values": {
+          "zla": 0,
+          "sua": 17,
+          "lew": 29
+        }
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "zla",
+      "name": "Zlatan",
+      "color": "#fecc02",
+      "player": "Zlatan Ibrahimović",
+      "country": "se"
+    },
+    {
+      "id": "sua",
+      "name": "Suárez",
+      "color": "#5cbfeb",
+      "player": "Luis Suárez",
+      "country": "uy"
+    },
+    {
+      "id": "lew",
+      "name": "Lewandowski",
+      "color": "#dc143c",
+      "player": "Robert Lewandowski",
+      "country": "pl"
+    }
+  ],
+  "category": "Football"
+}

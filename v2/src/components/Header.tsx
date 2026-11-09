@@ -12,7 +12,8 @@ export const Header: React.FC<{title: string; subtitle: string; theme: Theme}> =
 	const enter = easeOutCubic(0.55 + t / 0.3);
 	// Light sweep across the title every 4 seconds
 	const sweep = ((t % 4) / 0.9) * 140 - 20;
-	const titleSize = title.length > 18 ? 66 : 80;
+	// One line always: long three-way titles shrink instead of wrapping into the hook badge
+	const titleSize = Math.min(80, Math.floor(1550 / Math.max(1, title.length)));
 
 	return (
 		<div
@@ -35,6 +36,7 @@ export const Header: React.FC<{title: string; subtitle: string; theme: Theme}> =
 					fontFamily: fonts.title,
 					fontWeight: 800,
 					fontSize: titleSize,
+					whiteSpace: 'nowrap',
 					lineHeight: 1.02,
 					textAlign: 'center',
 					textTransform: 'uppercase',

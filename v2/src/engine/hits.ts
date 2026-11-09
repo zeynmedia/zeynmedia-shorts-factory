@@ -19,7 +19,7 @@ export const appearOf = (value: number, firstGain: number) =>
 
 export type Bar = {boxW: number; boxRight: number; appear: number; target: number};
 
-/** Box geometry for one row; target is where an incoming bubble counts (the face), shared by render and planner. */
+/** Box geometry for one row; target is where an incoming bubble's centre is when it touches the face. */
 export const barFor = (
 	layout: Layout,
 	theme: Theme,
@@ -32,7 +32,8 @@ export const barFor = (
 	const boxW = others ? layout.minBoxW * 1.35 : Math.max(layout.minBoxW * appear, xOfValue(layout, domain, value) - layout.axisX - 3, 0);
 	const boxRight = layout.axisX + 3 + boxW;
 	const faceLeft = theme.portrait === 'logo' ? boxRight + 6 : boxRight + (theme.tagSide === 'right' ? layout.tagW : 0);
-	return {boxW, boxRight, appear, target: faceLeft + layout.portrait * 0.6};
+	// Contact: the bubble's left edge reaches the face's right edge (+ a sliver of overlap so it reads as a hit)
+	return {boxW, boxRight, appear, target: faceLeft + layout.portrait * 0.92 + layout.deltaSize * 0.4};
 };
 
 /**

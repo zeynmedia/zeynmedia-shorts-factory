@@ -1,0 +1,181 @@
+{
+  "youtube": {
+    "title": "Neymar Jr vs Ronaldo Nazário Career Goals 🇧🇷🔥",
+    "description": "Neymar vs Ronaldo R9 — Club Goals by Age\n\nSource: Wikipedia career statistics (club, all competitions).\n\nMake your own viral Shorts free: https://studio.zeynelerek.com/templates/neymar-r9-goals-by-age\n\n#shorts #football #sports #stats #barchartrace",
+    "tags": [
+      "neymar",
+      "ronaldo nazario",
+      "r9",
+      "brazil",
+      "goals",
+      "shorts",
+      "sports stats",
+      "bar chart race",
+      "comparison",
+      "goat"
+    ]
+  },
+  "props": {
+    "brand": "ZEYN MEDYA",
+    "durationSec": 18,
+    "sfx": true,
+    "showDeltas": true,
+    "valueFormat": "int",
+    "template": "diamond",
+    "title": "Neymar vs Ronaldo R9",
+    "subtitle": "Club Goals by Age",
+    "stepIcon": "ball",
+    "steps": [
+      {
+        "label": "AGE 17",
+        "values": {
+          "ney": 14,
+          "r9": 20
+        }
+      },
+      {
+        "label": "AGE 18",
+        "values": {
+          "ney": 42,
+          "r9": 24
+        }
+      },
+      {
+        "label": "AGE 19",
+        "values": {
+          "ney": 24,
+          "r9": 35
+        }
+      },
+      {
+        "label": "AGE 20",
+        "values": {
+          "ney": 43,
+          "r9": 19
+        }
+      },
+      {
+        "label": "AGE 21",
+        "values": {
+          "ney": 13,
+          "r9": 47
+        }
+      },
+      {
+        "label": "AGE 22",
+        "values": {
+          "ney": 15,
+          "r9": 34
+        }
+      },
+      {
+        "label": "AGE 23",
+        "values": {
+          "ney": 39,
+          "r9": 15
+        }
+      },
+      {
+        "label": "AGE 24",
+        "values": {
+          "ney": 31,
+          "r9": 3
+        }
+      },
+      {
+        "label": "AGE 25",
+        "values": {
+          "ney": 20,
+          "r9": 0
+        }
+      },
+      {
+        "label": "AGE 26",
+        "values": {
+          "ney": 28,
+          "r9": 7
+        }
+      },
+      {
+        "label": "AGE 27",
+        "values": {
+          "ney": 23,
+          "r9": 30
+        }
+      },
+      {
+        "label": "AGE 28",
+        "values": {
+          "ney": 19,
+          "r9": 31
+        }
+      },
+      {
+        "label": "AGE 29",
+        "values": {
+          "ney": 17,
+          "r9": 24
+        }
+      },
+      {
+        "label": "AGE 30",
+        "values": {
+          "ney": 13,
+          "r9": 15
+        }
+      },
+      {
+        "label": "AGE 31",
+        "values": {
+          "ney": 18,
+          "r9": 11
+        }
+      },
+      {
+        "label": "AGE 32",
+        "values": {
+          "ney": 1,
+          "r9": 2
+        }
+      },
+      {
+        "label": "AGE 33",
+        "values": {
+          "ney": 11,
+          "r9": 23
+        }
+      },
+      {
+        "label": "AGE 34",
+        "values": {
+          "ney": 10,
+          "r9": 12
+        }
+      },
+      {
+        "label": "AGE 35",
+        "values": {
+          "ney": 0,
+          "r9": 0
+        }
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "ney",
+      "name": "Neymar",
+      "color": "#ffdf00",
+      "player": "Neymar",
+      "country": "br"
+    },
+    {
+      "id": "r9",
+      "name": "R9",
+      "color": "#009c3b",
+      "player": "Ronaldo Nazário",
+      "country": "br"
+    }
+  ],
+  "category": "Football"
+}

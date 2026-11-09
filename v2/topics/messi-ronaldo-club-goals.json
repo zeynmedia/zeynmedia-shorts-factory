@@ -1,0 +1,215 @@
+{
+  "youtube": {
+    "title": "Messi vs Ronaldo Club Goals Per Year ⚽️🔥",
+    "description": "Messi vs Ronaldo — Club Goals Per Year\n\nSource: Wikipedia career statistics (club, all competitions).\n\nMake your own viral Shorts free: https://studio.zeynelerek.com/templates/messi-ronaldo-club-goals\n\n#shorts #football #sports #stats #barchartrace",
+    "tags": [
+      "messi",
+      "ronaldo",
+      "cr7",
+      "goals",
+      "shorts",
+      "sports stats",
+      "bar chart race",
+      "comparison",
+      "goat"
+    ]
+  },
+  "props": {
+    "brand": "ZEYN MEDYA",
+    "durationSec": 18,
+    "sfx": true,
+    "showDeltas": true,
+    "valueFormat": "int",
+    "template": "diamond",
+    "title": "Messi vs Ronaldo",
+    "subtitle": "Club Goals Per Year",
+    "stepIcon": "ball",
+    "steps": [
+      {
+        "label": "2003",
+        "values": {
+          "mes": 0,
+          "ron": 5
+        }
+      },
+      {
+        "label": "2004",
+        "values": {
+          "mes": 5,
+          "ron": 6
+        }
+      },
+      {
+        "label": "2005",
+        "values": {
+          "mes": 7,
+          "ron": 9
+        }
+      },
+      {
+        "label": "2006",
+        "values": {
+          "mes": 8,
+          "ron": 12
+        }
+      },
+      {
+        "label": "2007",
+        "values": {
+          "mes": 17,
+          "ron": 23
+        }
+      },
+      {
+        "label": "2008",
+        "values": {
+          "mes": 16,
+          "ron": 42
+        }
+      },
+      {
+        "label": "2009",
+        "values": {
+          "mes": 38,
+          "ron": 26
+        }
+      },
+      {
+        "label": "2010",
+        "values": {
+          "mes": 47,
+          "ron": 33
+        }
+      },
+      {
+        "label": "2011",
+        "values": {
+          "mes": 53,
+          "ron": 53
+        }
+      },
+      {
+        "label": "2012",
+        "values": {
+          "mes": 73,
+          "ron": 60
+        }
+      },
+      {
+        "label": "2013",
+        "values": {
+          "mes": 60,
+          "ron": 55
+        }
+      },
+      {
+        "label": "2014",
+        "values": {
+          "mes": 41,
+          "ron": 51
+        }
+      },
+      {
+        "label": "2015",
+        "values": {
+          "mes": 58,
+          "ron": 61
+        }
+      },
+      {
+        "label": "2016",
+        "values": {
+          "mes": 41,
+          "ron": 51
+        }
+      },
+      {
+        "label": "2017",
+        "values": {
+          "mes": 54,
+          "ron": 42
+        }
+      },
+      {
+        "label": "2018",
+        "values": {
+          "mes": 45,
+          "ron": 44
+        }
+      },
+      {
+        "label": "2019",
+        "values": {
+          "mes": 51,
+          "ron": 28
+        }
+      },
+      {
+        "label": "2020",
+        "values": {
+          "mes": 31,
+          "ron": 37
+        }
+      },
+      {
+        "label": "2021",
+        "values": {
+          "mes": 38,
+          "ron": 36
+        }
+      },
+      {
+        "label": "2022",
+        "values": {
+          "mes": 11,
+          "ron": 24
+        }
+      },
+      {
+        "label": "2023",
+        "values": {
+          "mes": 32,
+          "ron": 17
+        }
+      },
+      {
+        "label": "2024",
+        "values": {
+          "mes": 23,
+          "ron": 50
+        }
+      },
+      {
+        "label": "2025",
+        "values": {
+          "mes": 43,
+          "ron": 35
+        }
+      },
+      {
+        "label": "2026",
+        "values": {
+          "mes": 30,
+          "ron": 30
+        }
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "mes",
+      "name": "Messi",
+      "color": "#75aadb",
+      "player": "Lionel Messi",
+      "country": "ar"
+    },
+    {
+      "id": "ron",
+      "name": "Ronaldo",
+      "color": "#da291c",
+      "player": "Cristiano Ronaldo",
+      "country": "pt"
+    }
+  ],
+  "category": "Football"
+}

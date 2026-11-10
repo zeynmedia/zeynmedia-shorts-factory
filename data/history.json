@@ -362,5 +362,14 @@
     "music": "LUA_NA_PRAÇA___Brazilian_Funk___Phonk__—_DJ_SAMIR,_DJ_ZAREK,_DJ_DUDA,_LUNXDIE(0).mp3",
     "engine": "v2",
     "scheduled": false
+  },
+  {
+    "date": "20261110-113542",
+    "topic": "v2:copa-america-winners",
+    "title": "Argentina vs Uruguay vs Brazil Copa América Titles 🏆🔥",
+    "video_id": "exle5tHaPos",
+    "music": "MONTAGEM_REBOLA(0).mp3",
+    "engine": "v2",
+    "scheduled": true
   }
 ]

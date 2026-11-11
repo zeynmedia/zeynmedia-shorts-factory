@@ -70,5 +70,14 @@
     "music": "MONTAGEM_XONADA(0).mp3",
     "engine": "v2",
     "scheduled": true
+  },
+  {
+    "date": "20261111-152704",
+    "topic": "v2:messi-ronaldo-ucl",
+    "title": "Ronaldo vs Messi Şampiyonlar Ligi Kupaları 🏆😱",
+    "video_id": "QS2Ch1thLJo",
+    "music": "From_The_Start_Funk__Subscribe_(0).mp3",
+    "engine": "v2",
+    "scheduled": true
   }
 ]

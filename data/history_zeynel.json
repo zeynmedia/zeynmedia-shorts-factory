@@ -241,5 +241,14 @@
     "music": "MONTAGEM_BAILÃO(0).mp3",
     "engine": "studio",
     "scheduled": true
+  },
+  {
+    "date": "20261111-113224",
+    "topic": "v2:jordan-kobe-lebron-rings",
+    "title": "Jordan vs Kobe vs LeBron Rings 💍🏀",
+    "video_id": null,
+    "music": "ACELERADA(0).mp3",
+    "engine": "studio",
+    "scheduled": true
   }
 ]

@@ -295,5 +295,14 @@
     "music": "MONTAGEM_LADRAO_SLOWED(0).mp3",
     "engine": "studio",
     "scheduled": true
+  },
+  {
+    "date": "20261113-064029",
+    "topic": "v2:world-cup-winners",
+    "title": "Most World Cup Wins 🏆🌍",
+    "video_id": null,
+    "music": "Metito_-_MONTAGEM_FOGO__ULTRA_SLOWED_(0).mp3",
+    "engine": "studio",
+    "scheduled": true
   }
 ]
